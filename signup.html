@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Create your Scribe account — AI Meeting Notes Summarizer." />
+  <title>Create Account — Scribe</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg: "#12151C", surface: "#1B1F29", border: "#2A2F3A",
+            text: "#E8E6E1", textMuted: "#8B909C",
+            accentSummary: "#7C9885", accentAction: "#D4A059",
+          },
+        },
+      },
+    };
+  </script>
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/motion@latest/dist/motion.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      min-height: 100%;
+      background: #12151C;
+      color: #E8E6E1;
+      font-family: "Inter", system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+      background-image: radial-gradient(ellipse 70% 50% at 50% -5%, rgba(212,160,89,0.07) 0%, transparent 65%);
+    }
+
+    .auth-wrapper {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 26px;
+      opacity: 0;
+    }
+
+    .logo-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .logo-icon {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, #7C9885 0%, #4f6b5a 100%);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-text {
+      font-family: "Fraunces", Georgia, serif;
+      font-style: italic;
+      font-size: 1.4rem;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      color: #E8E6E1;
+    }
+
+    .auth-card {
+      width: 100%;
+      background: #1B1F29;
+      border: 1px solid #2A2F3A;
+      border-radius: 16px;
+      padding: 34px 32px;
+    }
+
+    h1 {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: 1.55rem;
+      font-weight: 400;
+      color: #E8E6E1;
+      letter-spacing: -0.02em;
+      margin-bottom: 5px;
+    }
+    .card-sub {
+      font-size: 0.8rem;
+      color: #8B909C;
+      margin-bottom: 26px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 14px;
+    }
+    .field-group label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #8B909C;
+    }
+    .input-wrapper { position: relative; display: flex; align-items: center; }
+    .input-icon {
+      position: absolute;
+      left: 12px;
+      color: #8B909C;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+    }
+    .auth-input {
+      width: 100%;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid #2A2F3A;
+      border-radius: 8px;
+      padding: 11px 14px 11px 38px;
+      font-family: "Inter", sans-serif;
+      font-size: 0.875rem;
+      color: #E8E6E1;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+    .auth-input::placeholder { color: #3A4050; }
+    .auth-input:focus {
+      border-color: #7C9885;
+      background: rgba(124,152,133,0.04);
+      box-shadow: 0 0 0 3px rgba(124,152,133,0.1);
+    }
+    .auth-input.has-error { border-color: #b85c45; box-shadow: 0 0 0 3px rgba(184,92,69,0.12); }
+
+    .pw-toggle {
+      position: absolute;
+      right: 10px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: #8B909C;
+      display: flex;
+      align-items: center;
+      padding: 2px;
+      transition: color 0.15s;
+    }
+    .pw-toggle:hover { color: #E8E6E1; }
+
+    /* Password strength bar */
+    .strength-bar-track {
+      height: 3px;
+      background: #2A2F3A;
+      border-radius: 2px;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+    .strength-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      width: 0%;
+      transition: width 0.3s ease, background 0.3s ease;
+    }
+
+    .error-box {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      background: rgba(184,92,69,0.1);
+      border: 1px solid rgba(184,92,69,0.22);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 14px;
+      font-size: 0.78rem;
+      color: #d07860;
+      line-height: 1.45;
+    }
+    .error-box[hidden] { display: none; }
+
+    .submit-btn {
+      width: 100%;
+      margin-top: 6px;
+      background: #7C9885;
+      color: #12151C;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-family: "Inter", sans-serif;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .submit-btn:hover:not(:disabled) { opacity: 0.86; }
+    .submit-btn:active:not(:disabled) { transform: scale(0.98); }
+    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(18,21,28,0.3);
+      border-top-color: #12151C;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+      flex-shrink: 0;
+    }
+
+    .terms-note {
+      font-size: 0.72rem;
+      color: #4A5060;
+      text-align: center;
+      margin-top: 14px;
+      line-height: 1.5;
+    }
+
+    .footer-link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.78rem;
+      color: #8B909C;
+    }
+    .footer-link a { color: #7C9885; text-decoration: none; font-weight: 500; transition: color 0.15s; }
+    .footer-link a:hover { color: #9abba6; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .auth-wrapper { opacity: 1 !important; transform: none !important; }
+      .spinner { animation: none; }
+      .strength-bar-fill { transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="auth-wrapper" id="auth-wrapper">
+
+    <a href="index.html" class="logo-row" aria-label="Scribe home">
+      <div class="logo-icon">
+        <i data-lucide="file-text" style="width:15px;height:15px;color:#12151C;stroke-width:2.5;"></i>
+      </div>
+      <span class="logo-text">Scribe</span>
+    </a>
+
+    <div class="auth-card">
+      <h1>Create account</h1>
+      <p class="card-sub">Start summarizing meetings in seconds.</p>
+
+      <form id="signup-form" novalidate>
+
+        <div class="field-group">
+          <label for="display-name">Full name <span style="color:#4A5060;font-weight:400;">(optional)</span></label>
+          <div class="input-wrapper">
+            <span class="input-icon"><i data-lucide="user" style="width:14px;height:14px;"></i></span>
+            <input class="auth-input" type="text" id="display-name" name="display-name"
+              placeholder="Ada Lovelace" autocomplete="name" />
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="email">Email</label>
+          <div class="input-wrapper">
+            <span class="input-icon"><i data-lucide="mail" style="width:14px;height:14px;"></i></span>
+            <input class="auth-input" type="email" id="email" name="email"
+              placeholder="you@example.com" autocomplete="email" required />
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="password">Password</label>
+          <div class="input-wrapper">
+            <span class="input-icon"><i data-lucide="lock" style="width:14px;height:14px;"></i></span>
+            <input class="auth-input" type="password" id="password" name="password"
+              placeholder="Min. 6 characters" autocomplete="new-password" required
+              style="padding-right:40px;" />
+            <button type="button" class="pw-toggle" id="pw-toggle" aria-label="Toggle password visibility">
+              <i data-lucide="eye" id="pw-eye-icon" style="width:14px;height:14px;"></i>
+            </button>
+          </div>
+          <div class="strength-bar-track" aria-hidden="true">
+            <div class="strength-bar-fill" id="strength-fill"></div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="confirm-password">Confirm password</label>
+          <div class="input-wrapper">
+            <span class="input-icon"><i data-lucide="lock-keyhole" style="width:14px;height:14px;"></i></span>
+            <input class="auth-input" type="password" id="confirm-password" name="confirm-password"
+              placeholder="Repeat password" autocomplete="new-password" required />
+          </div>
+        </div>
+
+        <div class="error-box" id="error-msg" role="alert" hidden>
+          <i data-lucide="alert-circle" style="width:13px;height:13px;flex-shrink:0;margin-top:1px;"></i>
+          <span id="error-text"></span>
+        </div>
+
+        <button type="submit" class="submit-btn" id="btn-submit">
+          <div class="spinner" id="spinner"></div>
+          <span id="btn-label">Create account</span>
+        </button>
+
+        <p class="terms-note">By creating an account you agree to our terms of service.</p>
+      </form>
+
+      <p class="footer-link">Already have an account? <a href="login.html">&larr; Sign in</a></p>
+    </div>
+
+  </div>
+
+  <script type="module">
+    import { createUserWithEmailAndPassword, updateProfile, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import { auth } from "./firebase-config.js";
+
+    lucide.createIcons();
+
+    // Already signed in? Go to app.
+    onAuthStateChanged(auth, (user) => {
+      if (user) window.location.replace("index.html");
+    });
+
+    // Entrance animation
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!prefersReduced) {
+      const { animate } = Motion;
+      animate(
+        "#auth-wrapper",
+        { opacity: [0, 1], transform: ["translateY(20px)", "translateY(0px)"] },
+        { duration: 0.45, easing: [0.25, 0.46, 0.45, 0.94] }
+      );
+    } else {
+      const el = document.getElementById("auth-wrapper");
+      el.style.opacity = "1";
+      el.style.transform = "none";
+    }
+
+    // Password toggle
+    const pwInput = document.getElementById("password");
+    const pwEyeIcon = document.getElementById("pw-eye-icon");
+    document.getElementById("pw-toggle").addEventListener("click", () => {
+      const show = pwInput.type === "password";
+      pwInput.type = show ? "text" : "password";
+      pwEyeIcon.setAttribute("data-lucide", show ? "eye-off" : "eye");
+      lucide.createIcons();
+    });
+
+    // Strength bar
+    const strengthFill = document.getElementById("strength-fill");
+    pwInput.addEventListener("input", () => {
+      const v = pwInput.value;
+      let score = 0;
+      if (v.length >= 6)  score++;
+      if (v.length >= 10) score++;
+      if (/[A-Z]/.test(v) && /[a-z]/.test(v)) score++;
+      if (/\d/.test(v))   score++;
+      if (/[^A-Za-z0-9]/.test(v)) score++;
+      const pct  = Math.min(100, score * 22);
+      const clrs = ["#b85c45", "#b85c45", "#D4A059", "#D4A059", "#7C9885", "#7C9885"];
+      strengthFill.style.width      = pct + "%";
+      strengthFill.style.background = clrs[score] || "#7C9885";
+    });
+
+    // Helpers
+    function mapAuthError(code) {
+      const map = {
+        "auth/email-already-in-use":   "An account with this email already exists.",
+        "auth/invalid-email":          "Invalid email address.",
+        "auth/weak-password":          "Password must be at least 6 characters.",
+        "auth/too-many-requests":      "Too many attempts. Try again later.",
+        "auth/network-request-failed": "Network error. Check your connection.",
+      };
+      return map[code] || "Something went wrong. Please try again.";
+    }
+    function showError(msg) {
+      document.getElementById("error-text").textContent = msg;
+      document.getElementById("error-msg").hidden = false;
+    }
+    function clearError() {
+      document.getElementById("error-msg").hidden = true;
+    }
+    function setLoading(on) {
+      const btn = document.getElementById("btn-submit");
+      btn.disabled = on;
+      document.getElementById("spinner").style.display = on ? "block" : "none";
+      document.getElementById("btn-label").textContent = on ? "Creating account\u2026" : "Create account";
+    }
+
+    // Submit
+    document.getElementById("signup-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      clearError();
+
+      const name     = document.getElementById("display-name").value.trim();
+      const email    = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const confirm  = document.getElementById("confirm-password").value;
+
+      if (!email || !password) { showError("Email and password are required."); return; }
+      if (password.length < 6) { showError("Password must be at least 6 characters."); return; }
+      if (password !== confirm) { showError("Passwords do not match."); return; }
+
+      setLoading(true);
+      try {
+        const { user } = await createUserWithEmailAndPassword(auth, email, password);
+        if (name) await updateProfile(user, { displayName: name });
+        window.location.replace("index.html");
+      } catch (err) {
+        showError(mapAuthError(err.code));
+        setLoading(false);
+      }
+    });
+  </script>
+</body>
+</html>

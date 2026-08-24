@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AI Meeting Notes Summarizer — transform raw meeting transcripts into structured, actionable summaries instantly." />
+  <title>Scribe — AI Meeting Notes Summarizer</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg:            '#12151C',
+            surface:       '#1B1F29',
+            border:        '#2A2F3A',
+            text:          '#E8E6E1',
+            textMuted:     '#8B909C',
+            accentSummary: '#7C9885',
+            accentAction:  '#D4A059',
+          },
+          fontFamily: {
+            display: ['Fraunces', 'Georgia', 'serif'],
+            body:    ['Inter', 'system-ui', 'sans-serif'],
+            mono:    ['"JetBrains Mono"', 'monospace'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <!-- Motion One -->
+  <script src="https://cdn.jsdelivr.net/npm/motion@latest/dist/motion.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      background-color: #12151C;
+      color: #E8E6E1;
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #12151C; }
+    ::-webkit-scrollbar-thumb { background: #2A2F3A; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3A4050; }
+
+    #nav-bar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(18, 21, 28, 0.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid #2A2F3A;
+      opacity: 0;
+    }
+
+    .nav-logo-text {
+      font-family: 'Fraunces', Georgia, serif;
+      font-weight: 400;
+      font-style: italic;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .nav-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    #col-input,
+    #col-output {
+      opacity: 0;
+    }
+
+    .panel {
+      background: #1B1F29;
+      border: 1px solid #2A2F3A;
+      border-radius: 12px;
+      overflow: hidden;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid #2A2F3A;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .panel-header-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+    }
+
+    .panel-header-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: #8B909C;
+    }
+
+    .panel-body {
+      flex: 1;
+      padding: 20px;
+      display: flex;
+      align-items: stretch;
+    }
+
+    .placeholder-zone {
+      width: 100%;
+      border: 1.5px dashed #2A2F3A;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .placeholder-zone p {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      color: #3A4050;
+      letter-spacing: 0.04em;
+    }
+
+    .nav-action-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.15s ease, transform 0.1s ease;
+    }
+    .nav-action-btn:hover { opacity: 0.82; }
+    .nav-action-btn:active { transform: scale(0.96); }
+
+    .btn-ghost {
+      background: transparent;
+      color: #8B909C;
+      border: 1px solid #2A2F3A;
+    }
+    .btn-ghost:hover {
+      color: #E8E6E1;
+      border-color: #3A4050;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .btn-accent {
+      background: #D4A059;
+      color: #12151C;
+    }
+
+    .panel-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: transparent;
+      border: 1px solid #2A2F3A;
+      border-radius: 6px;
+      padding: 4px 10px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .panel-btn:hover {
+      border-color: #3A4050;
+      background: rgba(255,255,255,0.03);
+    }
+    .panel-btn span {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.68rem;
+      color: #8B909C;
+      font-weight: 500;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #7C9885;
+      box-shadow: 0 0 0 2px rgba(124,152,133,0.25);
+      animation: pulse-dot 2.4s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { box-shadow: 0 0 0 2px rgba(124,152,133,0.25); }
+      50%       { box-shadow: 0 0 0 5px rgba(124,152,133,0.1); }
+    }
+
+    #workspace {
+      display: flex;
+      gap: 12px;
+      padding: 16px 20px 20px;
+      height: calc(100vh - 57px);
+    }
+
+    #col-input  { width: 45%; flex-shrink: 0; }
+    #col-output { flex: 1; }
+
+    @media (max-width: 767px) {
+      #workspace {
+        flex-direction: column;
+        height: auto;
+        min-height: calc(100vh - 57px);
+        padding: 12px 14px 20px;
+        gap: 12px;
+      }
+      #col-input  { width: 100%; min-height: 320px; }
+      #col-output { width: 100%; min-height: 320px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #nav-bar, #col-input, #col-output { opacity: 1 !important; transform: none !important; }
+      .status-dot { animation: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV BAR -->
+  <nav id="nav-bar" aria-label="Primary navigation">
+    <div style="max-width:1440px; margin:0 auto; padding:0 20px; height:56px; display:flex; align-items:center; gap:14px;">
+
+      <a href="/" style="display:flex; align-items:center; gap:10px; text-decoration:none; flex-shrink:0;" aria-label="Scribe home">
+        <div style="width:32px; height:32px; background:linear-gradient(135deg,#7C9885 0%,#4f6b5a 100%); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+          <i data-lucide="file-text" style="width:15px; height:15px; color:#12151C; stroke-width:2.5;"></i>
+        </div>
+        <span class="nav-logo-text" style="font-size:1.3rem; color:#E8E6E1;">Scribe</span>
+        <span class="nav-badge" style="background:rgba(124,152,133,0.12); color:#7C9885; padding:2px 7px; border-radius:4px; border:1px solid rgba(124,152,133,0.2);">AI</span>
+      </a>
+
+      <!-- User chip — hidden until auth resolves -->
+      <div id="user-chip" style="margin-left:auto; display:none; align-items:center; gap:7px;">
+        <i data-lucide="user" style="width:14px; height:14px; color:#8B909C; flex-shrink:0;"></i>
+        <span id="user-display" style="font-family:'Inter',sans-serif; font-size:0.75rem; color:#8B909C; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:8px;" role="toolbar" aria-label="App actions">
+        <button id="btn-signout" class="nav-action-btn btn-ghost" aria-label="Sign out">
+          <i data-lucide="log-out" style="width:13px; height:13px;"></i>
+          <span>Sign out</span>
+        </button>
+        <button id="btn-summarize" class="nav-action-btn btn-accent" aria-label="Run AI summarizer">
+          <i data-lucide="sparkles" style="width:13px; height:13px;"></i>
+          Summarize
+        </button>
+      </div>
+
+    </div>
+  </nav>
+
+  <!-- WORKSPACE -->
+  <main id="workspace" role="main" aria-label="Workspace">
+
+    <!-- Left: Raw Transcript (45%) -->
+    <section id="col-input" aria-label="Raw transcript input column">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-header-icon" style="background:rgba(212,160,89,0.1);">
+            <i data-lucide="mic" style="width:13px; height:13px; color:#D4A059;"></i>
+          </div>
+          <span class="panel-header-label">Raw Transcript</span>
+          <div style="margin-left:auto; display:flex; gap:6px;">
+            <button class="panel-btn" id="btn-paste" aria-label="Paste transcript">
+              <i data-lucide="clipboard" style="width:11px; height:11px; color:#8B909C;"></i>
+              <span>Paste</span>
+            </button>
+            <button class="panel-btn" id="btn-upload" aria-label="Upload transcript file">
+              <i data-lucide="upload" style="width:11px; height:11px; color:#8B909C;"></i>
+              <span>Upload</span>
+            </button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="placeholder-zone" id="input-drop-zone" role="region" aria-label="Transcript drop zone">
+            <i data-lucide="file-audio" style="width:34px; height:34px; color:#2A2F3A;"></i>
+            <p>// transcript will appear here</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right: AI Output (55%) -->
+    <section id="col-output" aria-label="AI summary output column">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-header-icon" style="background:rgba(124,152,133,0.1);">
+            <i data-lucide="brain-circuit" style="width:13px; height:13px; color:#7C9885;"></i>
+          </div>
+          <span class="panel-header-label">AI Summary</span>
+          <div style="margin-left:auto; display:flex; gap:6px;">
+            <button class="panel-btn" id="btn-copy-output" aria-label="Copy summary to clipboard">
+              <i data-lucide="copy" style="width:11px; height:11px; color:#8B909C;"></i>
+              <span>Copy</span>
+            </button>
+            <button class="panel-btn" id="btn-export" aria-label="Export summary">
+              <i data-lucide="download" style="width:11px; height:11px; color:#8B909C;"></i>
+              <span>Export</span>
+            </button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="placeholder-zone" id="output-zone" role="region" aria-label="AI summary output area">
+            <i data-lucide="sparkles" style="width:34px; height:34px; color:#2A2F3A;"></i>
+            <p>// summary will render here</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // Hydrate icons synchronously so they're ready before the module fires.
+    lucide.createIcons();
+  </script>
+
+  <script type="module">
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import { auth } from "./firebase-config.js";
+
+    // Auth guard: page stays invisible until state resolves.
+    // If no user → redirect to login; otherwise reveal the UI.
+    onAuthStateChanged(auth, (user) => {
+      if (!user) { window.location.replace("login.html"); return; }
+
+      // Populate user chip
+      const name = user.displayName || user.email;
+      document.getElementById("user-display").textContent = `Welcome, ${name}`;
+      document.getElementById("user-chip").style.display = "flex";
+
+      // Trigger staggered entrance now that auth is confirmed
+      const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!prefersReduced) {
+        const { animate, stagger } = Motion;
+        animate(
+          "#nav-bar",
+          { opacity: [0, 1], transform: ["translateY(-10px)", "translateY(0px)"] },
+          { duration: 0.4, easing: [0.25, 0.46, 0.45, 0.94] }
+        );
+        animate(
+          ["#col-input", "#col-output"],
+          { opacity: [0, 1], transform: ["translateY(18px)", "translateY(0px)"] },
+          { duration: 0.5, easing: [0.25, 0.46, 0.45, 0.94], delay: stagger(0.1, { start: 0.15 }) }
+        );
+      } else {
+        ["nav-bar", "col-input", "col-output"].forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) { el.style.opacity = "1"; el.style.transform = "none"; }
+        });
+      }
+    });
+
+    document.getElementById("btn-signout").addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.replace("login.html");
+    });
+  </script>
+</body>
+</html>
