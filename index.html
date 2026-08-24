@@ -21,13 +21,13 @@
       theme: {
         extend: {
           colors: {
-            bg:            '#12151C',
-            surface:       '#1B1F29',
-            border:        '#2A2F3A',
-            text:          '#E8E6E1',
-            textMuted:     '#8B909C',
-            accentSummary: '#7C9885',
-            accentAction:  '#D4A059',
+            bg:            '#F6F5F1',
+            surface:       '#FFFFFF',
+            border:        '#E3E1DA',
+            text:          '#23231F',
+            textMuted:     '#6B6A62',
+            accentSummary: '#2F6858',
+            accentAction:  '#5B5FA8',
           },
           fontFamily: {
             display: ['Fraunces', 'Georgia', 'serif'],
@@ -48,28 +48,38 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; }
 
-    html, body {
-      height: 100%;
-      background-color: #12151C;
-      color: #E8E6E1;
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      min-height: 100%;
+      background-color: #F6F5F1;
+      color: #23231F;
       font-family: 'Inter', system-ui, sans-serif;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
     }
 
+    /* ── Global focus-visible ── */
+    :focus-visible {
+      outline: 2px solid #2F6858;
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+
     ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: #12151C; }
-    ::-webkit-scrollbar-thumb { background: #2A2F3A; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #3A4050; }
+    ::-webkit-scrollbar-track { background: #F6F5F1; }
+    ::-webkit-scrollbar-thumb { background: #E3E1DA; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #cccac2; }
 
     #nav-bar {
       position: sticky;
       top: 0;
       z-index: 50;
-      background: rgba(18, 21, 28, 0.85);
+      background: rgba(246, 245, 241, 0.88);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
-      border-bottom: 1px solid #2A2F3A;
+      border-bottom: 1px solid #E3E1DA;
       opacity: 0;
     }
 
@@ -79,6 +89,7 @@
       font-style: italic;
       letter-spacing: -0.02em;
       line-height: 1;
+      color: #23231F;
     }
 
     .nav-badge {
@@ -94,18 +105,19 @@
     }
 
     .panel {
-      background: #1B1F29;
-      border: 1px solid #2A2F3A;
+      background: #FFFFFF;
+      border: 1px solid #E3E1DA;
       border-radius: 12px;
       overflow: hidden;
       height: 100%;
       display: flex;
       flex-direction: column;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
     }
 
     .panel-header {
       padding: 14px 18px;
-      border-bottom: 1px solid #2A2F3A;
+      border-bottom: 1px solid #E3E1DA;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -127,7 +139,7 @@
       font-weight: 600;
       letter-spacing: 0.07em;
       text-transform: uppercase;
-      color: #8B909C;
+      color: #6B6A62;
     }
 
     .panel-body {
@@ -139,7 +151,7 @@
 
     .placeholder-zone {
       width: 100%;
-      border: 1.5px dashed #2A2F3A;
+      border: 1.5px dashed #E3E1DA;
       border-radius: 8px;
       display: flex;
       flex-direction: column;
@@ -151,7 +163,7 @@
     .placeholder-zone p {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.68rem;
-      color: #3A4050;
+      color: #cccac2;
       letter-spacing: 0.04em;
     }
 
@@ -170,21 +182,25 @@
     }
     .nav-action-btn:hover { opacity: 0.82; }
     .nav-action-btn:active { transform: scale(0.96); }
+    .nav-action-btn:focus-visible {
+      outline: 2px solid #2F6858;
+      outline-offset: 2px;
+    }
 
     .btn-ghost {
       background: transparent;
-      color: #8B909C;
-      border: 1px solid #2A2F3A;
+      color: #6B6A62;
+      border: 1px solid #E3E1DA;
     }
     .btn-ghost:hover {
-      color: #E8E6E1;
-      border-color: #3A4050;
-      background: rgba(255,255,255,0.03);
+      color: #23231F;
+      border-color: #cccac2;
+      background: rgba(0,0,0,0.03);
     }
 
     .btn-accent {
-      background: #D4A059;
-      color: #12151C;
+      background: #5B5FA8;
+      color: #FFFFFF;
     }
 
     .panel-btn {
@@ -192,20 +208,24 @@
       align-items: center;
       gap: 5px;
       background: transparent;
-      border: 1px solid #2A2F3A;
+      border: 1px solid #E3E1DA;
       border-radius: 6px;
       padding: 4px 10px;
       cursor: pointer;
       transition: border-color 0.15s, background 0.15s;
     }
     .panel-btn:hover {
-      border-color: #3A4050;
-      background: rgba(255,255,255,0.03);
+      border-color: #cccac2;
+      background: rgba(0,0,0,0.03);
+    }
+    .panel-btn:focus-visible {
+      outline: 2px solid #2F6858;
+      outline-offset: 2px;
     }
     .panel-btn span {
       font-family: 'Inter', sans-serif;
       font-size: 0.68rem;
-      color: #8B909C;
+      color: #6B6A62;
       font-weight: 500;
     }
 
@@ -213,13 +233,13 @@
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background: #7C9885;
-      box-shadow: 0 0 0 2px rgba(124,152,133,0.25);
+      background: #2F6858;
+      box-shadow: 0 0 0 2px rgba(47,104,88,0.2);
       animation: pulse-dot 2.4s ease-in-out infinite;
     }
     @keyframes pulse-dot {
-      0%, 100% { box-shadow: 0 0 0 2px rgba(124,152,133,0.25); }
-      50%       { box-shadow: 0 0 0 5px rgba(124,152,133,0.1); }
+      0%, 100% { box-shadow: 0 0 0 2px rgba(47,104,88,0.2); }
+      50%       { box-shadow: 0 0 0 5px rgba(47,104,88,0.08); }
     }
 
     #workspace {
@@ -236,7 +256,7 @@
       #workspace {
         flex-direction: column;
         height: auto;
-        min-height: calc(100vh - 57px);
+        min-height: auto;
         padding: 12px 14px 20px;
         gap: 12px;
       }
@@ -244,9 +264,303 @@
       #col-output { width: 100%; min-height: 320px; }
     }
 
+    /* 375px tightening */
+    @media (max-width: 400px) {
+      .nav-badge { display: none; }
+      #user-chip span { display: none; }
+      #past-summaries-section { padding: 0 12px 32px; }
+      .past-card-date { display: none; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       #nav-bar, #col-input, #col-output { opacity: 1 !important; transform: none !important; }
       .status-dot { animation: none; }
+    }
+
+    /* ── Transcript textarea ── */
+    .transcript-wrap {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      gap: 12px;
+    }
+    #transcript-input {
+      flex: 1;
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      resize: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.75;
+      color: #23231F;
+      caret-color: #2F6858;
+      border-radius: 4px;
+    }
+    #transcript-input:focus-visible {
+      outline: 2px solid #2F6858;
+      outline-offset: 2px;
+    }
+    #transcript-input::placeholder {
+      color: #cccac2;
+    }
+
+    /* ── Summarize button ── */
+    #btn-summarize-panel {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      width: 100%;
+      padding: 10px 0;
+      border-radius: 8px;
+      background: #2F6858;
+      color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.15s ease, transform 0.1s ease;
+    }
+    #btn-summarize-panel:hover:not(:disabled) { opacity: 0.85; }
+    #btn-summarize-panel:active:not(:disabled) { transform: scale(0.97); }
+    #btn-summarize-panel:disabled { opacity: 0.5; cursor: not-allowed; }
+    #btn-summarize-panel:focus-visible {
+      outline: 2px solid #2F6858;
+      outline-offset: 3px;
+      box-shadow: 0 0 0 4px rgba(47,104,88,0.18);
+    }
+
+    /* ── Blinking cursor loading ── */
+    .loading-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 14px;
+      background: #FFFFFF;
+      border-radius: 1px;
+      animation: blink-cursor 0.8s step-end infinite;
+    }
+    @keyframes blink-cursor {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .loading-cursor { animation: none; opacity: 1; }
+    }
+
+    /* ── Output card ── */
+    .output-card {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .output-section-heading {
+      font-family: 'Fraunces', Georgia, serif;
+      font-weight: 400;
+      font-size: 1.2rem;
+      font-style: italic;
+      margin: 0 0 8px 0;
+      line-height: 1.2;
+    }
+    .summary-text {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      line-height: 1.7;
+      color: #23231F;
+      margin: 0;
+    }
+    .action-item-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(227,225,218,0.8);
+      opacity: 0; /* initial — animated in by Motion */
+    }
+    .action-item-row:last-child { border-bottom: none; }
+    .action-checkbox {
+      flex-shrink: 0;
+      width: 15px;
+      height: 15px;
+      accent-color: #2F6858;
+      cursor: pointer;
+    }
+    .action-task {
+      flex: 1;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.83rem;
+      color: #23231F;
+      line-height: 1.5;
+      transition: color 0.2s, text-decoration 0.2s, opacity 0.2s;
+    }
+    .action-owner {
+      flex-shrink: 0;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.7rem;
+      color: #6B6A62;
+      white-space: nowrap;
+    }
+    .action-item-row.done .action-task {
+      text-decoration: line-through;
+      opacity: 0.35;
+    }
+    .action-item-row.done .action-owner { opacity: 0.35; }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: #FFFFFF;
+      border: 1px solid #E3E1DA;
+      border-radius: 10px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.10), 0 1px 3px rgba(0,0,0,0.06);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: #23231F;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* ── Past Summaries section ── */
+    #past-summaries-section {
+      padding: 0 20px 40px;
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+    .section-heading {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 1.1rem;
+      font-weight: 400;
+      font-style: italic;
+      color: #23231F;
+      margin-bottom: 14px;
+      letter-spacing: -0.01em;
+    }
+    .past-empty {
+      text-align: center;
+      padding: 36px 0;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      color: #6B6A62;
+      line-height: 1.6;
+    }
+    .past-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .past-card {
+      background: #FFFFFF;
+      border: 1px solid #E3E1DA;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      transition: box-shadow 0.18s ease, transform 0.18s ease;
+    }
+    .past-card:hover {
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05);
+      transform: translateY(-1px);
+    }
+    .past-card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+    }
+    .past-card-date {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      color: #6B6A62;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+    .past-card-preview {
+      flex: 1;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      color: #23231F;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .past-card-chevron {
+      flex-shrink: 0;
+      color: #6B6A62;
+      transition: transform 0.22s ease;
+    }
+    .past-card.open .past-card-chevron {
+      transform: rotate(180deg);
+    }
+    .past-card-body {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.28s ease;
+    }
+    .past-card.open .past-card-body {
+      grid-template-rows: 1fr;
+    }
+    .past-card-body-inner {
+      overflow: hidden;
+    }
+    .past-card-content {
+      padding: 0 16px 16px;
+      border-top: 1px solid #E3E1DA;
+      padding-top: 14px;
+    }
+    .past-summary-text {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      line-height: 1.7;
+      color: #23231F;
+      margin-bottom: 14px;
+    }
+    .past-action-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(227,225,218,0.7);
+      font-size: 0.78rem;
+    }
+    .past-action-row:last-child { border-bottom: none; }
+    .past-action-bullet {
+      flex-shrink: 0;
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: #2F6858;
+      margin-top: 2px;
+    }
+    .past-action-task {
+      flex: 1;
+      font-family: 'Inter', sans-serif;
+      color: #23231F;
+    }
+    .past-action-owner {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.7rem;
+      color: #6B6A62;
+      white-space: nowrap;
+    }
+    /* past-card hover-lift reduced-motion override — higher specificity */
+    @media (prefers-reduced-motion: reduce) {
+      .past-card,
+      .past-card:hover { transition: box-shadow 0.18s ease; transform: none; }
+      .past-card-body { transition: none; }
+      .past-card-chevron,
+      .past-card.open .past-card-chevron { transition: none; }
     }
   </style>
 </head>
@@ -257,17 +571,17 @@
     <div style="max-width:1440px; margin:0 auto; padding:0 20px; height:56px; display:flex; align-items:center; gap:14px;">
 
       <a href="/" style="display:flex; align-items:center; gap:10px; text-decoration:none; flex-shrink:0;" aria-label="Scribe home">
-        <div style="width:32px; height:32px; background:linear-gradient(135deg,#7C9885 0%,#4f6b5a 100%); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-          <i data-lucide="file-text" style="width:15px; height:15px; color:#12151C; stroke-width:2.5;"></i>
+        <div style="width:32px; height:32px; background:linear-gradient(135deg,#2F6858 0%,#1e4a3e 100%); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+          <i data-lucide="file-text" style="width:15px; height:15px; color:#FFFFFF; stroke-width:2.5;"></i>
         </div>
-        <span class="nav-logo-text" style="font-size:1.3rem; color:#E8E6E1;">Scribe</span>
-        <span class="nav-badge" style="background:rgba(124,152,133,0.12); color:#7C9885; padding:2px 7px; border-radius:4px; border:1px solid rgba(124,152,133,0.2);">AI</span>
+        <span class="nav-logo-text" style="font-size:1.3rem; color:#23231F;">Scribe</span>
+        <span class="nav-badge" style="background:rgba(47,104,88,0.1); color:#2F6858; padding:2px 7px; border-radius:4px; border:1px solid rgba(47,104,88,0.2);">AI</span>
       </a>
 
       <!-- User chip — hidden until auth resolves -->
       <div id="user-chip" style="margin-left:auto; display:none; align-items:center; gap:7px;">
-        <i data-lucide="user" style="width:14px; height:14px; color:#8B909C; flex-shrink:0;"></i>
-        <span id="user-display" style="font-family:'Inter',sans-serif; font-size:0.75rem; color:#8B909C; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
+        <i data-lucide="user" style="width:14px; height:14px; color:#6B6A62; flex-shrink:0;"></i>
+        <span id="user-display" style="font-family:'Inter',sans-serif; font-size:0.75rem; color:#6B6A62; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
       </div>
 
       <div style="display:flex; align-items:center; gap:8px;" role="toolbar" aria-label="App actions">
@@ -275,10 +589,7 @@
           <i data-lucide="log-out" style="width:13px; height:13px;"></i>
           <span>Sign out</span>
         </button>
-        <button id="btn-summarize" class="nav-action-btn btn-accent" aria-label="Run AI summarizer">
-          <i data-lucide="sparkles" style="width:13px; height:13px;"></i>
-          Summarize
-        </button>
+
       </div>
 
     </div>
@@ -291,8 +602,8 @@
     <section id="col-input" aria-label="Raw transcript input column">
       <div class="panel">
         <div class="panel-header">
-          <div class="panel-header-icon" style="background:rgba(212,160,89,0.1);">
-            <i data-lucide="mic" style="width:13px; height:13px; color:#D4A059;"></i>
+          <div class="panel-header-icon" style="background:rgba(91,95,168,0.1);">
+            <i data-lucide="mic" style="width:13px; height:13px; color:#5B5FA8;"></i>
           </div>
           <span class="panel-header-label">Raw Transcript</span>
           <div style="margin-left:auto; display:flex; gap:6px;">
@@ -306,10 +617,18 @@
             </button>
           </div>
         </div>
-        <div class="panel-body">
-          <div class="placeholder-zone" id="input-drop-zone" role="region" aria-label="Transcript drop zone">
-            <i data-lucide="file-audio" style="width:34px; height:34px; color:#2A2F3A;"></i>
-            <p>// transcript will appear here</p>
+        <div class="panel-body" style="padding:16px;">
+          <div class="transcript-wrap">
+            <textarea
+              id="transcript-input"
+              aria-label="Paste or type meeting transcript"
+              placeholder="// paste meeting transcript here..."
+              spellcheck="false"
+            ></textarea>
+            <button id="btn-summarize-panel" aria-label="Run AI summarizer">
+              <i data-lucide="sparkles" style="width:14px; height:14px;"></i>
+              <span id="btn-label">Summarize</span>
+            </button>
           </div>
         </div>
       </div>
@@ -319,8 +638,8 @@
     <section id="col-output" aria-label="AI summary output column">
       <div class="panel">
         <div class="panel-header">
-          <div class="panel-header-icon" style="background:rgba(124,152,133,0.1);">
-            <i data-lucide="brain-circuit" style="width:13px; height:13px; color:#7C9885;"></i>
+          <div class="panel-header-icon" style="background:rgba(47,104,88,0.1);">
+            <i data-lucide="brain-circuit" style="width:13px; height:13px; color:#2F6858;"></i>
           </div>
           <span class="panel-header-label">AI Summary</span>
           <div style="margin-left:auto; display:flex; gap:6px;">
@@ -334,49 +653,71 @@
             </button>
           </div>
         </div>
-        <div class="panel-body">
-          <div class="placeholder-zone" id="output-zone" role="region" aria-label="AI summary output area">
-            <i data-lucide="sparkles" style="width:34px; height:34px; color:#2A2F3A;"></i>
+        <div class="panel-body" id="output-panel-body" style="overflow-y:auto;">
+          <div class="placeholder-zone" id="output-placeholder" role="region" aria-label="AI summary output area">
+            <i data-lucide="sparkles" style="width:34px; height:34px; color:#E3E1DA;"></i>
             <p>// summary will render here</p>
           </div>
+          <div id="output-card" class="output-card" style="display:none;"></div>
         </div>
       </div>
     </section>
 
   </main>
 
+  <!-- Past Summaries -->
+  <section id="past-summaries-section" aria-label="Past summaries">
+    <div style="border-top:1px solid #E3E1DA; margin: 0 0 24px; opacity:0.6;"></div>
+    <h2 class="section-heading">Past Summaries</h2>
+    <div id="past-summaries-list"></div>
+  </section>
+
+  <!-- Toast -->
+  <div id="toast" role="status" aria-live="polite">
+    <i data-lucide="check-circle" style="width:14px;height:14px;color:#2F6858;flex-shrink:0;"></i>
+    <span>Saved</span>
+  </div>
+
   <script>
-    // Hydrate icons synchronously so they're ready before the module fires.
     lucide.createIcons();
   </script>
 
   <script type="module">
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
     import { auth } from "./firebase-config.js";
 
-    // Auth guard: page stays invisible until state resolves.
-    // If no user → redirect to login; otherwise reveal the UI.
+    const db = getFirestore();
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const GEMINI_KEY = "AQ.Ab8RN6LkybwfP9TP67cw4INuLk5wKkQ6L6SgFM4_Ri6jXDjBaQ";
+    const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
+
+    // ── Auth guard ──────────────────────────────────────────────────────────
     onAuthStateChanged(auth, (user) => {
       if (!user) { window.location.replace("login.html"); return; }
 
-      // Populate user chip
       const name = user.displayName || user.email;
       document.getElementById("user-display").textContent = `Welcome, ${name}`;
       document.getElementById("user-chip").style.display = "flex";
 
-      // Trigger staggered entrance now that auth is confirmed
-      const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      loadPastSummaries(user.uid);
+
       if (!prefersReduced) {
-        const { animate, stagger } = Motion;
+        const { animate } = Motion;
         animate(
           "#nav-bar",
-          { opacity: [0, 1], transform: ["translateY(-10px)", "translateY(0px)"] },
-          { duration: 0.4, easing: [0.25, 0.46, 0.45, 0.94] }
+          { opacity: [0, 1], transform: ["translateY(-8px)", "translateY(0px)"] },
+          { duration: 0.4, easing: [0.16, 1, 0.3, 1] }
         );
         animate(
-          ["#col-input", "#col-output"],
-          { opacity: [0, 1], transform: ["translateY(18px)", "translateY(0px)"] },
-          { duration: 0.5, easing: [0.25, 0.46, 0.45, 0.94], delay: stagger(0.1, { start: 0.15 }) }
+          "#col-input",
+          { opacity: [0, 1], transform: ["translateY(10px)", "translateY(0px)"] },
+          { duration: 0.5, easing: [0.16, 1, 0.3, 1], delay: 0.15 }
+        );
+        animate(
+          "#col-output",
+          { opacity: [0, 1], transform: ["translateY(10px)", "translateY(0px)"] },
+          { duration: 0.5, easing: [0.16, 1, 0.3, 1], delay: 0.25 }
         );
       } else {
         ["nav-bar", "col-input", "col-output"].forEach((id) => {
@@ -389,6 +730,208 @@
     document.getElementById("btn-signout").addEventListener("click", async () => {
       await signOut(auth);
       window.location.replace("login.html");
+    });
+
+    // ── Summarize ───────────────────────────────────────────────────────────
+    const btnPanel  = document.getElementById("btn-summarize-panel");
+    const btnLabel  = document.getElementById("btn-label");
+    const textarea  = document.getElementById("transcript-input");
+    const outputCard        = document.getElementById("output-card");
+    const outputPlaceholder = document.getElementById("output-placeholder");
+
+    function setLoading(on) {
+      btnPanel.disabled = on;
+      if (on) {
+        btnLabel.innerHTML = 'Thinking <span class="loading-cursor"></span>';
+      } else {
+        btnLabel.textContent = "Summarize";
+      }
+      // Re-hydrate icons inside the button
+      lucide.createIcons();
+    }
+
+    function renderResults(data) {
+      outputPlaceholder.style.display = "none";
+      outputCard.style.display = "flex";
+      outputCard.innerHTML = `
+        <div>
+          <h2 class="output-section-heading" style="color:#2F6858;">Summary</h2>
+          <p class="summary-text">${escHtml(data.summary)}</p>
+        </div>
+        <div>
+          <h2 class="output-section-heading" style="color:#5B5FA8;">Action Items</h2>
+          <div id="action-list">
+            ${(data.actionItems || []).map((item, i) => `
+              <div class="action-item-row" data-index="${i}">
+                <input type="checkbox" class="action-checkbox" id="chk-${i}" aria-label="Mark task done">
+                <label class="action-task" for="chk-${i}">${escHtml(item.task)}</label>
+                <span class="action-owner">${escHtml(item.owner || "Unassigned")}</span>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `;
+
+      // Wire checkboxes
+      outputCard.querySelectorAll(".action-checkbox").forEach((chk) => {
+        chk.addEventListener("change", () => {
+          chk.closest(".action-item-row").classList.toggle("done", chk.checked);
+        });
+      });
+
+      // Animate action items in
+      const rows = outputCard.querySelectorAll(".action-item-row");
+      if (rows.length > 0) {
+        const { animate, stagger } = Motion;
+        if (!prefersReduced) {
+          animate(
+            rows,
+            { opacity: [0, 1], transform: ["translateX(10px)", "translateX(0px)"] },
+            { duration: 0.35, easing: [0.16, 1, 0.3, 1], delay: stagger(0.1) }
+          );
+        } else {
+          animate(rows, { opacity: [0, 1] }, { duration: 0.3 });
+        }
+      }
+    }
+
+    function escHtml(str) {
+      return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    }
+
+    // ── Past Summaries ───────────────────────────────────────────────────────
+    async function loadPastSummaries(userId) {
+      const list = document.getElementById("past-summaries-list");
+      list.innerHTML = `<p class="past-empty" style="color:#6B6A62;">Loading…</p>`;
+      try {
+        const q = query(
+          collection(db, "summaries"),
+          where("userId", "==", userId),
+          orderBy("createdAt", "desc")
+        );
+        const snap = await getDocs(q);
+        renderPastSummaries(snap.docs);
+      } catch (err) {
+        console.error("Past summaries load error:", err);
+        list.innerHTML = `<p class="past-empty">Could not load past summaries.</p>`;
+      }
+    }
+
+    function renderPastSummaries(docs) {
+      const list = document.getElementById("past-summaries-list");
+      if (docs.length === 0) {
+        list.innerHTML = `<p class="past-empty">No summaries yet — paste your first meeting notes above to get started.</p>`;
+        return;
+      }
+      list.innerHTML = `<div class="past-grid">${docs.map((doc, i) => {
+        const d = doc.data();
+        const date = d.createdAt?.toDate ? d.createdAt.toDate() : new Date();
+        const dateStr = date.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
+          + " · " + date.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+        const preview = (d.summaryText || "").split("\n")[0].slice(0, 120);
+        const actions = (d.actionItems || []).map(a =>
+          `<div class="past-action-row">
+            <span class="past-action-bullet"></span>
+            <span class="past-action-task">${escHtml(a.task)}</span>
+            <span class="past-action-owner">${escHtml(a.owner || "Unassigned")}</span>
+          </div>`
+        ).join("");
+        return `
+          <div class="past-card" id="pc-${i}" data-idx="${i}">
+            <div class="past-card-header">
+              <span class="past-card-date">${escHtml(dateStr)}</span>
+              <span class="past-card-preview">${escHtml(preview)}</span>
+              <i data-lucide="chevron-down" class="past-card-chevron" style="width:14px;height:14px;"></i>
+            </div>
+            <div class="past-card-body">
+              <div class="past-card-body-inner">
+                <div class="past-card-content">
+                  <p class="past-summary-text">${escHtml(d.summaryText || "")}</p>
+                  ${actions ? `<p style="font-family:'Inter';font-size:0.7rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#6B6A62;margin-bottom:8px;">Action Items</p>${actions}` : ""}
+                </div>
+              </div>
+            </div>
+          </div>`;
+      }).join("")}</div>`;
+
+      lucide.createIcons();
+
+      // Toggle expand/collapse
+      document.querySelectorAll(".past-card").forEach(card => {
+        card.querySelector(".past-card-header").addEventListener("click", () => {
+          card.classList.toggle("open");
+        });
+      });
+    }
+
+    // ── Firestore save ───────────────────────────────────────────────────────
+    async function saveToFirestore(userId, rawInput, parsed) {
+      try {
+        await addDoc(collection(db, "summaries"), {
+          userId,
+          rawInput,
+          summaryText:  parsed.summary,
+          actionItems:  parsed.actionItems || [],
+          createdAt:    serverTimestamp(),
+        });
+        showToast();
+        loadPastSummaries(userId); // refresh list with new entry
+      } catch (err) {
+        console.error("Firestore save error:", err);
+      }
+    }
+
+    // ── Toast ────────────────────────────────────────────────────────────────
+    function showToast() {
+      const toast = document.getElementById("toast");
+      const { animate } = Motion;
+      // Fade in
+      animate(toast, { opacity: [0, 1] }, { duration: 0.2, easing: "ease-out" });
+      // Fade out after 2 s
+      setTimeout(() => {
+        animate(toast, { opacity: [1, 0] }, { duration: 0.3, easing: "ease-in" });
+      }, 2000);
+    }
+
+    btnPanel.addEventListener("click", async () => {
+      const notes = textarea.value.trim();
+      if (!notes) { textarea.focus(); return; }
+
+      setLoading(true);
+      const prompt = `You are a meeting summarizer. Return ONLY a valid JSON object — no markdown fences, no prose — with exactly this shape:
+{"summary":"<string>","actionItems":[{"task":"<string>","owner":"<name or Unassigned>"}]}
+If no owner is clearly stated, use "Unassigned".
+
+Meeting notes:
+${notes}`;
+
+      try {
+        const res = await fetch(GEMINI_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        });
+        if (!res.ok) throw new Error(`API ${res.status}: ${await res.text()}`);
+
+        const data = await res.json();
+        let raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+        raw = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+
+        const parsed = JSON.parse(raw);
+        console.log("Gemini result:", parsed);
+        renderResults(parsed);
+
+        // Save to Firestore (fire-and-forget, non-blocking)
+        const currentUser = auth.currentUser;
+        if (currentUser) saveToFirestore(currentUser.uid, notes, parsed);
+      } catch (err) {
+        console.error("Summarize error:", err);
+        outputPlaceholder.style.display = "none";
+        outputCard.style.display = "flex";
+        outputCard.innerHTML = `<p style="color:#5B5FA8;font-family:'JetBrains Mono',monospace;font-size:0.75rem;">Error: ${escHtml(err.message)}</p>`;
+      } finally {
+        setLoading(false);
+      }
     });
   </script>
 </body>

@@ -16,9 +16,9 @@
       theme: {
         extend: {
           colors: {
-            bg: "#12151C", surface: "#1B1F29", border: "#2A2F3A",
-            text: "#E8E6E1", textMuted: "#8B909C",
-            accentSummary: "#7C9885", accentAction: "#D4A059",
+            bg: "#F6F5F1", surface: "#FFFFFF", border: "#E3E1DA",
+            text: "#23231F", textMuted: "#6B6A62",
+            accentSummary: "#2F6858", accentAction: "#5B5FA8",
           },
         },
       },
@@ -33,10 +33,17 @@
 
     html, body {
       min-height: 100%;
-      background: #12151C;
-      color: #E8E6E1;
+      background: #F6F5F1;
+      color: #23231F;
       font-family: "Inter", system-ui, sans-serif;
       -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Global focus-visible ── */
+    :focus-visible {
+      outline: 2px solid #2F6858;
+      outline-offset: 2px;
+      border-radius: 4px;
     }
 
     body {
@@ -45,7 +52,7 @@
       justify-content: center;
       min-height: 100vh;
       padding: 24px;
-      background-image: radial-gradient(ellipse 70% 50% at 50% -5%, rgba(212,160,89,0.07) 0%, transparent 65%);
+      background-image: radial-gradient(ellipse 70% 50% at 50% -5%, rgba(91,95,168,0.06) 0%, transparent 65%);
     }
 
     .auth-wrapper {
@@ -76,28 +83,29 @@
       font-size: 1.4rem;
       font-weight: 400;
       letter-spacing: -0.02em;
-      color: #E8E6E1;
+      color: #23231F;
     }
 
     .auth-card {
       width: 100%;
-      background: #1B1F29;
-      border: 1px solid #2A2F3A;
+      background: #FFFFFF;
+      border: 1px solid #E3E1DA;
       border-radius: 16px;
       padding: 34px 32px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
     }
 
     h1 {
       font-family: "Fraunces", Georgia, serif;
       font-size: 1.55rem;
       font-weight: 400;
-      color: #E8E6E1;
+      color: #23231F;
       letter-spacing: -0.02em;
       margin-bottom: 5px;
     }
     .card-sub {
       font-size: 0.8rem;
-      color: #8B909C;
+      color: #6B6A62;
       margin-bottom: 26px;
     }
 
@@ -112,34 +120,34 @@
       font-weight: 600;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      color: #8B909C;
+      color: #6B6A62;
     }
     .input-wrapper { position: relative; display: flex; align-items: center; }
     .input-icon {
       position: absolute;
       left: 12px;
-      color: #8B909C;
+      color: #6B6A62;
       pointer-events: none;
       display: flex;
       align-items: center;
     }
     .auth-input {
       width: 100%;
-      background: rgba(255,255,255,0.025);
-      border: 1px solid #2A2F3A;
+      background: #F6F5F1;
+      border: 1px solid #E3E1DA;
       border-radius: 8px;
       padding: 11px 14px 11px 38px;
       font-family: "Inter", sans-serif;
       font-size: 0.875rem;
-      color: #E8E6E1;
+      color: #23231F;
       outline: none;
       transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
     }
-    .auth-input::placeholder { color: #3A4050; }
+    .auth-input::placeholder { color: #cccac2; }
     .auth-input:focus {
-      border-color: #7C9885;
-      background: rgba(124,152,133,0.04);
-      box-shadow: 0 0 0 3px rgba(124,152,133,0.1);
+      border-color: #2F6858;
+      background: rgba(47,104,88,0.03);
+      box-shadow: 0 0 0 3px rgba(47,104,88,0.1);
     }
     .auth-input.has-error { border-color: #b85c45; box-shadow: 0 0 0 3px rgba(184,92,69,0.12); }
 
@@ -149,18 +157,19 @@
       background: transparent;
       border: none;
       cursor: pointer;
-      color: #8B909C;
+      color: #6B6A62;
       display: flex;
       align-items: center;
       padding: 2px;
       transition: color 0.15s;
     }
-    .pw-toggle:hover { color: #E8E6E1; }
+    .pw-toggle:hover { color: #23231F; }
+    .pw-toggle:focus-visible { outline: 2px solid #2F6858; outline-offset: 2px; border-radius: 4px; }
 
     /* Password strength bar */
     .strength-bar-track {
       height: 3px;
-      background: #2A2F3A;
+      background: #E3E1DA;
       border-radius: 2px;
       margin-top: 6px;
       overflow: hidden;
@@ -190,8 +199,8 @@
     .submit-btn {
       width: 100%;
       margin-top: 6px;
-      background: #7C9885;
-      color: #12151C;
+      background: #2F6858;
+      color: #FFFFFF;
       border: none;
       border-radius: 8px;
       padding: 12px;
@@ -208,12 +217,17 @@
     .submit-btn:hover:not(:disabled) { opacity: 0.86; }
     .submit-btn:active:not(:disabled) { transform: scale(0.98); }
     .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .submit-btn:focus-visible {
+      outline: 2px solid #2F6858;
+      outline-offset: 3px;
+      box-shadow: 0 0 0 4px rgba(47,104,88,0.18);
+    }
 
     @keyframes spin { to { transform: rotate(360deg); } }
     .spinner {
       width: 14px; height: 14px;
-      border: 2px solid rgba(18,21,28,0.3);
-      border-top-color: #12151C;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #FFFFFF;
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
       display: none;
@@ -222,7 +236,7 @@
 
     .terms-note {
       font-size: 0.72rem;
-      color: #4A5060;
+      color: #6B6A62;
       text-align: center;
       margin-top: 14px;
       line-height: 1.5;
@@ -232,10 +246,15 @@
       text-align: center;
       margin-top: 20px;
       font-size: 0.78rem;
-      color: #8B909C;
+      color: #6B6A62;
     }
-    .footer-link a { color: #7C9885; text-decoration: none; font-weight: 500; transition: color 0.15s; }
-    .footer-link a:hover { color: #9abba6; }
+    .footer-link a { color: #2F6858; text-decoration: none; font-weight: 500; transition: color 0.15s; }
+    .footer-link a:hover { color: #1e4a3e; }
+    .footer-link a:focus-visible { outline: 2px solid #2F6858; outline-offset: 2px; border-radius: 2px; }
+
+    @media (max-width: 400px) {
+      .auth-card { padding: 24px 18px; }
+    }
 
     @media (prefers-reduced-motion: reduce) {
       .auth-wrapper { opacity: 1 !important; transform: none !important; }
@@ -250,7 +269,7 @@
 
     <a href="index.html" class="logo-row" aria-label="Scribe home">
       <div class="logo-icon">
-        <i data-lucide="file-text" style="width:15px;height:15px;color:#12151C;stroke-width:2.5;"></i>
+        <i data-lucide="file-text" style="width:15px;height:15px;color:#FFFFFF;stroke-width:2.5;"></i>
       </div>
       <span class="logo-text">Scribe</span>
     </a>
@@ -262,7 +281,7 @@
       <form id="signup-form" novalidate>
 
         <div class="field-group">
-          <label for="display-name">Full name <span style="color:#4A5060;font-weight:400;">(optional)</span></label>
+          <label for="display-name">Full name <span style="color:#6B6A62;font-weight:400;">(optional)</span></label>
           <div class="input-wrapper">
             <span class="input-icon"><i data-lucide="user" style="width:14px;height:14px;"></i></span>
             <input class="auth-input" type="text" id="display-name" name="display-name"
@@ -339,8 +358,8 @@
       const { animate } = Motion;
       animate(
         "#auth-wrapper",
-        { opacity: [0, 1], transform: ["translateY(20px)", "translateY(0px)"] },
-        { duration: 0.45, easing: [0.25, 0.46, 0.45, 0.94] }
+        { opacity: [0, 1], transform: ["translateY(10px)", "translateY(0px)"] },
+        { duration: 0.45, easing: [0.16, 1, 0.3, 1] }
       );
     } else {
       const el = document.getElementById("auth-wrapper");
