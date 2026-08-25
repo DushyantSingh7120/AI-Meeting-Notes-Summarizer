@@ -352,6 +352,21 @@
       .loading-cursor { animation: none; opacity: 1; }
     }
 
+    /* ── Inline Error box ── */
+    .error-box {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      background: rgba(184,92,69,0.1);
+      border: 1px solid rgba(184,92,69,0.22);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.78rem;
+      color: #b85c45;
+      line-height: 1.45;
+    }
+    .error-box[hidden] { display: none; }
+
     /* ── Output card ── */
     .output-card {
       width: 100%;
@@ -625,6 +640,10 @@
               placeholder="// paste meeting transcript here..."
               spellcheck="false"
             ></textarea>
+            <div class="error-box" id="transcript-error" role="alert" hidden>
+              <i data-lucide="alert-circle" style="width:13px; height:13px; flex-shrink:0; margin-top:1px;"></i>
+              <span id="transcript-error-text"></span>
+            </div>
             <button id="btn-summarize-panel" aria-label="Run AI summarizer">
               <i data-lucide="sparkles" style="width:14px; height:14px;"></i>
               <span id="btn-label">Summarize</span>
@@ -686,11 +705,10 @@
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
     import { getFirestore, collection, addDoc, serverTimestamp, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
     import { auth } from "./firebase-config.js";
+    import { GEMINI_MODEL, GEMINI_URL } from "./ai-config.js";
 
     const db = getFirestore();
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const GEMINI_KEY = "AQ.Ab8RN6LkybwfP9TP67cw4INuLk5wKkQ6L6SgFM4_Ri6jXDjBaQ";
-    const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
 
     // ── Auth guard ──────────────────────────────────────────────────────────
     onAuthStateChanged(auth, (user) => {
@@ -738,6 +756,46 @@
     const textarea  = document.getElementById("transcript-input");
     const outputCard        = document.getElementById("output-card");
     const outputPlaceholder = document.getElementById("output-placeholder");
+    const errorBox          = document.getElementById("transcript-error");
+    const errorText         = document.getElementById("transcript-error-text");
+
+    let rateLimitTimer = null;
+
+    function showError(msg) {
+      errorText.textContent = msg;
+      errorBox.hidden = false;
+      lucide.createIcons();
+    }
+
+    function clearError() {
+      if (!errorBox.hidden) {
+        errorBox.hidden = true;
+      }
+    }
+
+    textarea.addEventListener("input", () => {
+      clearError();
+    });
+
+    function startRateLimit(seconds = 5) {
+      if (rateLimitTimer) clearInterval(rateLimitTimer);
+      btnPanel.disabled = true;
+      let remaining = seconds;
+      btnLabel.textContent = `Wait ${remaining}s`;
+
+      rateLimitTimer = setInterval(() => {
+        remaining -= 1;
+        if (remaining > 0) {
+          btnLabel.textContent = `Wait ${remaining}s`;
+        } else {
+          clearInterval(rateLimitTimer);
+          rateLimitTimer = null;
+          btnPanel.disabled = false;
+          btnLabel.textContent = "Summarize";
+          lucide.createIcons();
+        }
+      }, 1000);
+    }
 
     function setLoading(on) {
       btnPanel.disabled = on;
@@ -894,10 +952,29 @@
     }
 
     btnPanel.addEventListener("click", async () => {
-      const notes = textarea.value.trim();
-      if (!notes) { textarea.focus(); return; }
+      if (rateLimitTimer) return;
 
+      const notes = textarea.value.trim();
+      if (notes.length < 20) {
+        if (notes.length === 0) {
+          showError("Please enter meeting notes before summarizing (minimum 20 characters).");
+        } else {
+          showError(`Transcript must be at least 20 characters (currently ${notes.length} characters).`);
+        }
+        textarea.focus();
+        return;
+      }
+
+      if (notes.length > 8000) {
+        showError(`Transcript exceeds the 8,000 character limit (currently ${notes.length.toLocaleString()} characters).`);
+        textarea.focus();
+        return;
+      }
+
+      clearError();
       setLoading(true);
+      let callSucceeded = false;
+
       const prompt = `You are a meeting summarizer. Return ONLY a valid JSON object — no markdown fences, no prose — with exactly this shape:
 {"summary":"<string>","actionItems":[{"task":"<string>","owner":"<name or Unassigned>"}]}
 If no owner is clearly stated, use "Unassigned".
@@ -924,13 +1001,19 @@ ${notes}`;
         // Save to Firestore (fire-and-forget, non-blocking)
         const currentUser = auth.currentUser;
         if (currentUser) saveToFirestore(currentUser.uid, notes, parsed);
+
+        callSucceeded = true;
       } catch (err) {
         console.error("Summarize error:", err);
         outputPlaceholder.style.display = "none";
         outputCard.style.display = "flex";
         outputCard.innerHTML = `<p style="color:#5B5FA8;font-family:'JetBrains Mono',monospace;font-size:0.75rem;">Error: ${escHtml(err.message)}</p>`;
       } finally {
-        setLoading(false);
+        if (callSucceeded) {
+          startRateLimit(5);
+        } else {
+          setLoading(false);
+        }
       }
     });
   </script>

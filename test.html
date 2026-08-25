@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -17,9 +17,8 @@
   <button id="btn">Summarize</button>
   <pre id="output">Result will appear here...</pre>
 
-  <script>
-    const API_KEY = "AQ.Ab8RN6LkybwfP9TP67cw4INuLk5wKkQ6L6SgFM4_Ri6jXDjBaQ";
-    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+  <script type="module">
+    import { GEMINI_MODEL, GEMINI_URL } from "./ai-config.js";
 
     document.getElementById("btn").addEventListener("click", async () => {
       const notes = document.getElementById("notes").value.trim();
