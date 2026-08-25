@@ -694,7 +694,7 @@
   <!-- Toast -->
   <div id="toast" role="status" aria-live="polite">
     <i data-lucide="check-circle" style="width:14px;height:14px;color:#2F6858;flex-shrink:0;"></i>
-    <span>Saved</span>
+    <span id="toast-msg">Saved</span>
   </div>
 
   <script>
@@ -705,7 +705,10 @@
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
     import { getFirestore, collection, addDoc, serverTimestamp, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
     import { auth } from "./firebase-config.js";
-    import { GEMINI_MODEL, GEMINI_URL } from "./ai-config.js";
+    import { GEMINI_MODEL } from "./ai-config.js";
+    import { GEMINI_KEY }   from "./gemini-secret.js";
+
+    const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_KEY}`;
 
     const db = getFirestore();
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -817,7 +820,17 @@
           <p class="summary-text">${escHtml(data.summary)}</p>
         </div>
         <div>
-          <h2 class="output-section-heading" style="color:#5B5FA8;">Action Items</h2>
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:2px;">
+            <h2 class="output-section-heading" style="color:#5B5FA8; margin:0;">Action Items</h2>
+            <button
+              id="btn-copy-actions"
+              aria-label="Copy action items to clipboard"
+              title="Copy action items"
+              style="display:flex; align-items:center; justify-content:center; background:transparent; border:1px solid #E3E1DA; border-radius:6px; padding:3px 7px; cursor:pointer; transition:border-color 0.15s, background 0.15s; flex-shrink:0;"
+            >
+              <i data-lucide="copy" style="width:11px; height:11px; color:#8B909C;"></i>
+            </button>
+          </div>
           <div id="action-list">
             ${(data.actionItems || []).map((item, i) => `
               <div class="action-item-row" data-index="${i}">
@@ -829,6 +842,18 @@
           </div>
         </div>
       `;
+
+      // Wire copy-actions button
+      document.getElementById("btn-copy-actions").addEventListener("click", () => {
+        const lines = (data.actionItems || []).map(
+          item => `- [ ] ${item.task} (${item.owner || "Unassigned"})`
+        ).join("\n");
+        navigator.clipboard.writeText(lines).then(() => {
+          showToast("Copied");
+        }).catch(() => {
+          showToast("Copy failed");
+        });
+      });
 
       // Wire checkboxes
       outputCard.querySelectorAll(".action-checkbox").forEach((chk) => {
@@ -940,14 +965,18 @@
     }
 
     // ── Toast ────────────────────────────────────────────────────────────────
-    function showToast() {
+    let toastTimer = null;
+    function showToast(msg = "Saved") {
       const toast = document.getElementById("toast");
+      document.getElementById("toast-msg").textContent = msg;
       const { animate } = Motion;
+      if (toastTimer) clearTimeout(toastTimer);
       // Fade in
       animate(toast, { opacity: [0, 1] }, { duration: 0.2, easing: "ease-out" });
       // Fade out after 2 s
-      setTimeout(() => {
+      toastTimer = setTimeout(() => {
         animate(toast, { opacity: [1, 0] }, { duration: 0.3, easing: "ease-in" });
+        toastTimer = null;
       }, 2000);
     }
 

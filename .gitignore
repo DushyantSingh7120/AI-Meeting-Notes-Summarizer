@@ -1,2 +1,5 @@
-﻿# Firebase — real credentials
+# Firebase — real credentials
 firebase-config.js
+
+# Gemini API key — real key
+gemini-secret.js
