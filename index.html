@@ -45,6 +45,9 @@
   <!-- Motion One -->
   <script src="https://cdn.jsdelivr.net/npm/motion@latest/dist/motion.js"></script>
 
+  <!-- jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
   <style>
     *, *::before, *::after { box-sizing: border-box; }
 
@@ -577,6 +580,71 @@
       .past-card-chevron,
       .past-card.open .past-card-chevron { transition: none; }
     }
+    /* ── Past Summaries search ── */
+    .past-search-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .past-search-icon {
+      position: absolute;
+      left: 11px;
+      color: #6B6A62;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+    }
+    #past-search {
+      width: 100%;
+      background: #FFFFFF;
+      border: 1px solid #E3E1DA;
+      border-radius: 8px;
+      padding: 8px 12px 8px 34px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+      color: #23231F;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    #past-search::placeholder { color: #cccac2; }
+    #past-search:focus {
+      border-color: #2F6858;
+      box-shadow: 0 0 0 3px rgba(47,104,88,0.1);
+    }
+    /* ── Past card export bar ── */
+    .past-export-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding-top: 12px;
+      margin-top: 12px;
+      border-top: 1px solid rgba(227,225,218,0.7);
+    }
+    .past-export-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: transparent;
+      border: 1px solid #E3E1DA;
+      border-radius: 6px;
+      padding: 4px 10px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.68rem;
+      color: #6B6A62;
+      font-weight: 500;
+    }
+    .past-export-btn:hover {
+      border-color: #cccac2;
+      background: rgba(0,0,0,0.03);
+      color: #23231F;
+    }
+    .past-export-btn:focus-visible {
+      outline: 2px solid #2F6858;
+      outline-offset: 2px;
+    }
   </style>
 </head>
 <body>
@@ -688,6 +756,18 @@
   <section id="past-summaries-section" aria-label="Past summaries">
     <div style="border-top:1px solid #E3E1DA; margin: 0 0 24px; opacity:0.6;"></div>
     <h2 class="section-heading">Past Summaries</h2>
+    <div class="past-search-wrap">
+      <span class="past-search-icon">
+        <i data-lucide="search" style="width:13px; height:13px;"></i>
+      </span>
+      <input
+        id="past-search"
+        type="search"
+        placeholder="Search summaries…"
+        aria-label="Search past summaries"
+        autocomplete="off"
+      />
+    </div>
     <div id="past-summaries-list"></div>
   </section>
 
@@ -883,6 +963,8 @@
     }
 
     // ── Past Summaries ───────────────────────────────────────────────────────
+    let cachedDocs = []; // holds the full loaded set for client-side filtering
+
     async function loadPastSummaries(userId) {
       const list = document.getElementById("past-summaries-list");
       list.innerHTML = `<p class="past-empty" style="color:#6B6A62;">Loading…</p>`;
@@ -893,17 +975,44 @@
           orderBy("createdAt", "desc")
         );
         const snap = await getDocs(q);
-        renderPastSummaries(snap.docs);
+        cachedDocs = snap.docs;
+        renderPastSummaries(cachedDocs);
+
+        // Wire up search (idempotent — only attach once)
+        const searchEl = document.getElementById("past-search");
+        if (searchEl && !searchEl.dataset.wired) {
+          searchEl.dataset.wired = "1";
+          let debounceTimer = null;
+          searchEl.addEventListener("input", () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+              const term = searchEl.value.trim().toLowerCase();
+              if (!term) { renderPastSummaries(cachedDocs); return; }
+              const filtered = cachedDocs.filter(doc => {
+                const d = doc.data();
+                const haystack = [
+                  d.summaryText || "",
+                  ...(d.actionItems || []).map(a => `${a.task || ""} ${a.owner || ""}`)
+                ].join(" ").toLowerCase();
+                return haystack.includes(term);
+              });
+              renderPastSummaries(filtered, term);
+            }, 150);
+          });
+        }
       } catch (err) {
         console.error("Past summaries load error:", err);
         list.innerHTML = `<p class="past-empty">Could not load past summaries.</p>`;
       }
     }
 
-    function renderPastSummaries(docs) {
+    function renderPastSummaries(docs, searchTerm = "") {
       const list = document.getElementById("past-summaries-list");
       if (docs.length === 0) {
-        list.innerHTML = `<p class="past-empty">No summaries yet — paste your first meeting notes above to get started.</p>`;
+        const msg = searchTerm
+          ? `No matches for &ldquo;${escHtml(searchTerm)}&rdquo;`
+          : "No summaries yet — paste your first meeting notes above to get started.";
+        list.innerHTML = `<p class="past-empty">${msg}</p>`;
         return;
       }
       list.innerHTML = `<div class="past-grid">${docs.map((doc, i) => {
@@ -931,6 +1040,16 @@
                 <div class="past-card-content">
                   <p class="past-summary-text">${escHtml(d.summaryText || "")}</p>
                   ${actions ? `<p style="font-family:'Inter';font-size:0.7rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#6B6A62;margin-bottom:8px;">Action Items</p>${actions}` : ""}
+                  <div class="past-export-bar">
+                    <button class="past-export-btn" data-export="md" data-idx="${i}" aria-label="Export as Markdown">
+                      <i data-lucide="file-down" style="width:11px;height:11px;"></i>
+                      <span>Export MD</span>
+                    </button>
+                    <button class="past-export-btn" data-export="pdf" data-idx="${i}" aria-label="Export as PDF">
+                      <i data-lucide="file-down" style="width:11px;height:11px;"></i>
+                      <span>Export PDF</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -938,6 +1057,100 @@
       }).join("")}</div>`;
 
       lucide.createIcons();
+
+      // ── Export helpers ──────────────────────────────────────────────────
+      function slugDate(date) {
+        return date.toISOString().slice(0, 10); // YYYY-MM-DD
+      }
+
+      function buildMarkdown(d, date) {
+        const lines = [
+          `# Meeting Summary — ${slugDate(date)}`,
+          ``,
+          `## Summary`,
+          ``,
+          d.summaryText || "",
+        ];
+        if ((d.actionItems || []).length > 0) {
+          lines.push(``, `## Action Items`, ``);
+          (d.actionItems || []).forEach(a => {
+            lines.push(`- [ ] ${a.task} — ${a.owner || "Unassigned"}`);
+          });
+        }
+        return lines.join("\n");
+      }
+
+      function downloadBlob(text, filename) {
+        const blob = new Blob([text], { type: "text/markdown;charset=utf-8" });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement("a");
+        a.href     = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      function exportPDF(d, date) {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
+        const margin = 50;
+        const pageW  = pdf.internal.pageSize.getWidth();
+        const maxW   = pageW - margin * 2;
+        let y = margin;
+
+        // Title
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(16);
+        pdf.text(`Meeting Summary — ${slugDate(date)}`, margin, y);
+        y += 28;
+
+        // Summary heading
+        pdf.setFontSize(11);
+        pdf.text("Summary", margin, y);
+        y += 16;
+
+        // Summary body
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(10);
+        const summaryLines = pdf.splitTextToSize(d.summaryText || "", maxW);
+        pdf.text(summaryLines, margin, y);
+        y += summaryLines.length * 14 + 16;
+
+        // Action items
+        if ((d.actionItems || []).length > 0) {
+          pdf.setFont("helvetica", "bold");
+          pdf.setFontSize(11);
+          pdf.text("Action Items", margin, y);
+          y += 16;
+          pdf.setFont("helvetica", "normal");
+          pdf.setFontSize(10);
+          (d.actionItems || []).forEach(a => {
+            const line = `\u25A1  ${a.task} (${a.owner || "Unassigned"})`;
+            const wrapped = pdf.splitTextToSize(line, maxW);
+            pdf.text(wrapped, margin, y);
+            y += wrapped.length * 14 + 4;
+          });
+        }
+
+        pdf.save(`meeting-summary-${slugDate(date)}.pdf`);
+      }
+
+      // Wire export buttons — use event delegation on the list
+      list.querySelectorAll(".past-export-btn").forEach(btn => {
+        btn.addEventListener("click", e => {
+          e.stopPropagation(); // don't toggle card open/close
+          const idx  = parseInt(btn.dataset.idx, 10);
+          const doc  = docs[idx];
+          if (!doc) return;
+          const d    = doc.data();
+          const date = d.createdAt?.toDate ? d.createdAt.toDate() : new Date();
+          if (btn.dataset.export === "md") {
+            downloadBlob(buildMarkdown(d, date), `meeting-summary-${slugDate(date)}.md`);
+          } else {
+            exportPDF(d, date);
+          }
+        });
+      });
 
       // Toggle expand/collapse
       document.querySelectorAll(".past-card").forEach(card => {
