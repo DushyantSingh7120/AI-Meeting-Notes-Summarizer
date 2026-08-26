@@ -35,9 +35,11 @@ The Gemini model name is isolated into a single configuration constant to easily
 
 ## Running Locally
 
-1. Clone the repository to your local machine.
-2. Add your Firebase configuration details to the project.
-3. Add your Google Gemini API key to `gemini-secret.js` (reference the `.example` file).
-4. Run the application with a local HTTP server, such as Live Server or `firebase serve`.
+1. Clone the repository to your local machine:
+   ```bash
+   git clone https://github.com/DushyantSingh7120/AI-Meeting-Notes-Summarizer.git
+   ```
+2. Open `index.html` using Live Server (or any local static server).
+3. View and interact with the application in your browser.
 
-Built by [INSERT NAME] - [INSERT LINK]
+Built by [Dushyant Singh](https://github.com/DushyantSingh7120)
