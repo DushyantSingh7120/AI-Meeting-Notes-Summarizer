@@ -346,8 +346,20 @@
   </div>
 
   <script type="module">
-    import { createUserWithEmailAndPassword, updateProfile, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
-    import { auth } from "./firebase-config.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, updateProfile, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+    const firebaseConfig = window.FIREBASE_CONFIG || {
+      apiKey:            "AIzaSyDX0t9Q6H62KtnQjnniT6MF69d8axFkhtY",
+      authDomain:        "ai-meeting-notes-summari-e7703.firebaseapp.com",
+      projectId:         "ai-meeting-notes-summari-e7703",
+      storageBucket:     "ai-meeting-notes-summari-e7703.firebasestorage.app",
+      messagingSenderId: "1070968321004",
+      appId:             "1:1070968321004:web:de44bedf6f6dc633da46c9",
+    };
+
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
     lucide.createIcons();
 

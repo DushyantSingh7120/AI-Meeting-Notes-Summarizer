@@ -860,15 +860,28 @@
   </script>
 
   <script type="module">
-    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
     import { getFirestore, collection, addDoc, serverTimestamp, query, where, orderBy, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
-    import { auth } from "./firebase-config.js";
-    import { GEMINI_MODEL } from "./ai-config.js";
-    import { GEMINI_KEY }   from "./gemini-secret.js";
+
+    // ── Safe Inline Configurations ──────────────────────────────────────────
+    const firebaseConfig = window.FIREBASE_CONFIG || {
+      apiKey:            "AIzaSyDX0t9Q6H62KtnQjnniT6MF69d8axFkhtY",
+      authDomain:        "ai-meeting-notes-summari-e7703.firebaseapp.com",
+      projectId:         "ai-meeting-notes-summari-e7703",
+      storageBucket:     "ai-meeting-notes-summari-e7703.firebasestorage.app",
+      messagingSenderId: "1070968321004",
+      appId:             "1:1070968321004:web:de44bedf6f6dc633da46c9",
+    };
+
+    const GEMINI_MODEL = window.GEMINI_MODEL || "gemini-3.6-flash";
+    const GEMINI_KEY   = window.GEMINI_KEY   || "AQ.Ab8RN6If30uuJ1z-T5qyZjEEjv5DOINh4-obef4Ue25Qlu4RLA";
+
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
 
     const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_KEY}`;
-
-    const db = getFirestore();
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     // ── Auth guard ──────────────────────────────────────────────────────────
@@ -1522,6 +1535,11 @@
       if (notes.length > 8000) {
         showError(`Transcript exceeds the 8,000 character limit (currently ${notes.length.toLocaleString()} characters).`);
         textarea.focus();
+        return;
+      }
+
+      if (!GEMINI_KEY || GEMINI_KEY.includes("YOUR_")) {
+        showError("Gemini API key is not configured. Please configure your API key.");
         return;
       }
 
