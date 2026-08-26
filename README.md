@@ -5,9 +5,9 @@
 
 ## Screenshots
 
-![Dashboard](./screenshots/dashboard.png)
+![Summary Result](./screenshots/summary-result.png.png)
 
-![Summary Result](./screenshots/summary-result.png)
+![History View](./screenshots/history-view.png.png)
 
 ## What it does
 
