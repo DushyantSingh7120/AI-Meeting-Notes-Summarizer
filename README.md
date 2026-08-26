@@ -1,7 +1,7 @@
 # AI Meeting Notes Summarizer
 *An application for converting raw meeting transcripts into structured summaries and actionable tasks.*
 
-**Live Demo:** [INSERT DEPLOYED URL]
+**Live Demo:** [https://ai-meeting-notes-summarizer-two.vercel.app](https://ai-meeting-notes-summarizer-two.vercel.app)
 
 ## Screenshots
 
