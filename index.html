@@ -225,6 +225,15 @@
       outline: 2px solid #2F6858;
       outline-offset: 2px;
     }
+    .panel-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .export-opt-btn:hover {
+      background: rgba(0,0,0,0.04);
+      color: #23231F;
+    }
     .panel-btn span {
       font-family: 'Inter', sans-serif;
       font-size: 0.68rem;
@@ -645,6 +654,52 @@
       outline: 2px solid #2F6858;
       outline-offset: 2px;
     }
+
+    .past-card-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      margin-left: auto;
+    }
+    @media (max-width: 767px) {
+      .past-card-actions { opacity: 1; }
+    }
+    .past-card:hover .past-card-actions {
+      opacity: 1;
+    }
+    .past-action-btn {
+      background: transparent;
+      border: none;
+      border-radius: 4px;
+      padding: 4px;
+      cursor: pointer;
+      color: #6B6A62;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, color 0.15s;
+    }
+    .past-action-btn:hover {
+      background: rgba(0,0,0,0.04);
+      color: #23231F;
+    }
+    .past-action-btn.delete-btn:hover {
+      background: rgba(91,95,168,0.08);
+    }
+    .past-title-input {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #23231F;
+      background: #FFFFFF;
+      border: 1px solid #2F6858;
+      border-radius: 4px;
+      padding: 2px 6px;
+      outline: none;
+      width: 180px;
+    }
   </style>
 </head>
 <body>
@@ -729,15 +784,28 @@
             <i data-lucide="brain-circuit" style="width:13px; height:13px; color:#2F6858;"></i>
           </div>
           <span class="panel-header-label">AI Summary</span>
-          <div style="margin-left:auto; display:flex; gap:6px;">
-            <button class="panel-btn" id="btn-copy-output" aria-label="Copy summary to clipboard">
+          <div style="margin-left:auto; display:flex; gap:6px; position:relative;">
+            <button class="panel-btn" id="btn-copy-output" aria-label="Copy summary to clipboard" disabled>
               <i data-lucide="copy" style="width:11px; height:11px; color:#8B909C;"></i>
               <span>Copy</span>
             </button>
-            <button class="panel-btn" id="btn-export" aria-label="Export summary">
-              <i data-lucide="download" style="width:11px; height:11px; color:#8B909C;"></i>
-              <span>Export</span>
-            </button>
+            <div style="position:relative;">
+              <button class="panel-btn" id="btn-export" aria-label="Export summary" disabled>
+                <i data-lucide="download" style="width:11px; height:11px; color:#8B909C;"></i>
+                <span>Export</span>
+                <i data-lucide="chevron-down" style="width:10px; height:10px; color:#8B909C;"></i>
+              </button>
+              <div id="export-dropdown" style="display:none; position:absolute; right:0; top:calc(100% + 4px); z-index:40; background:#FFFFFF; border:1px solid #E3E1DA; border-radius:8px; box-shadow:0 4px 16px rgba(0,0,0,0.08); padding:4px; min-width:130px;">
+                <button class="export-opt-btn" data-export-type="md" style="width:100%; display:flex; align-items:center; gap:6px; padding:6px 10px; background:transparent; border:none; border-radius:6px; font-family:'Inter',sans-serif; font-size:0.75rem; color:#23231F; cursor:pointer; text-align:left;">
+                  <i data-lucide="file-down" style="width:12px; height:12px; color:#2F6858;"></i>
+                  <span>Export MD</span>
+                </button>
+                <button class="export-opt-btn" data-export-type="pdf" style="width:100%; display:flex; align-items:center; gap:6px; padding:6px 10px; background:transparent; border:none; border-radius:6px; font-family:'Inter',sans-serif; font-size:0.75rem; color:#23231F; cursor:pointer; text-align:left;">
+                  <i data-lucide="file-down" style="width:12px; height:12px; color:#5B5FA8;"></i>
+                  <span>Export PDF</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
         <div class="panel-body" id="output-panel-body" style="overflow-y:auto;">
@@ -783,7 +851,7 @@
 
   <script type="module">
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, serverTimestamp, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, query, where, orderBy, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
     import { auth } from "./firebase-config.js";
     import { GEMINI_MODEL } from "./ai-config.js";
     import { GEMINI_KEY }   from "./gemini-secret.js";
@@ -860,6 +928,49 @@
       clearError();
     });
 
+    // ── Paste & Upload buttons ──
+    const btnPaste  = document.getElementById("btn-paste");
+    const btnUpload = document.getElementById("btn-upload");
+
+    const transcriptFileInput = document.createElement("input");
+    transcriptFileInput.type = "file";
+    transcriptFileInput.accept = ".txt,.md,text/plain,text/markdown";
+    transcriptFileInput.style.display = "none";
+    document.body.appendChild(transcriptFileInput);
+
+    btnPaste.addEventListener("click", async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          textarea.value = text;
+          clearError();
+          textarea.focus();
+        }
+      } catch (err) {
+        console.error("Paste error:", err);
+      }
+    });
+
+    btnUpload.addEventListener("click", () => {
+      transcriptFileInput.value = "";
+      transcriptFileInput.click();
+    });
+
+    transcriptFileInput.addEventListener("change", (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        textarea.value = event.target.result || "";
+        clearError();
+        textarea.focus();
+      };
+      reader.onerror = (err) => {
+        console.error("File read error:", err);
+      };
+      reader.readAsText(file);
+    });
+
     function startRateLimit(seconds = 5) {
       if (rateLimitTimer) clearInterval(rateLimitTimer);
       btnPanel.disabled = true;
@@ -891,7 +1002,137 @@
       lucide.createIcons();
     }
 
+    // ── Export helpers ───────────────────────────────────────────────────────
+    function slugDate(date) {
+      return date.toISOString().slice(0, 10); // YYYY-MM-DD
+    }
+
+    function buildMarkdown(d, date) {
+      const lines = [
+        `# Meeting Summary — ${slugDate(date)}`,
+        ``,
+        `## Summary`,
+        ``,
+        d.summaryText || "",
+      ];
+      if ((d.actionItems || []).length > 0) {
+        lines.push(``, `## Action Items`, ``);
+        (d.actionItems || []).forEach(a => {
+          lines.push(`- [ ] ${a.task} — ${a.owner || "Unassigned"}`);
+        });
+      }
+      return lines.join("\n");
+    }
+
+    function downloadBlob(text, filename) {
+      const blob = new Blob([text], { type: "text/markdown;charset=utf-8" });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement("a");
+      a.href     = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportPDF(d, date = new Date()) {
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
+      const margin = 50;
+      const pageW  = pdf.internal.pageSize.getWidth();
+      const maxW   = pageW - margin * 2;
+      let y = margin;
+
+      // Title
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(16);
+      pdf.text(`Meeting Summary — ${slugDate(date)}`, margin, y);
+      y += 28;
+
+      // Summary heading
+      pdf.setFontSize(11);
+      pdf.text("Summary", margin, y);
+      y += 16;
+
+      // Summary body
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(10);
+      const summaryLines = pdf.splitTextToSize(d.summaryText || "", maxW);
+      pdf.text(summaryLines, margin, y);
+      y += summaryLines.length * 14 + 16;
+
+      // Action items
+      if ((d.actionItems || []).length > 0) {
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(11);
+        pdf.text("Action Items", margin, y);
+        y += 16;
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(10);
+        (d.actionItems || []).forEach(a => {
+          const line = `\u25A1  ${a.task} (${a.owner || "Unassigned"})`;
+          const wrapped = pdf.splitTextToSize(line, maxW);
+          pdf.text(wrapped, margin, y);
+          y += wrapped.length * 14 + 4;
+        });
+      }
+
+      pdf.save(`meeting-summary-${slugDate(date)}.pdf`);
+    }
+
+    function exportMarkdown(d, date = new Date()) {
+      downloadBlob(buildMarkdown(d, date), `meeting-summary-${slugDate(date)}.md`);
+    }
+
+    // ── Live Summary Panel controls ──────────────────────────────────────────
+    let currentLiveSummary = null;
+    const btnCopyOutput  = document.getElementById("btn-copy-output");
+    const btnExport      = document.getElementById("btn-export");
+    const exportDropdown = document.getElementById("export-dropdown");
+
+    btnCopyOutput.addEventListener("click", () => {
+      if (!currentLiveSummary || !currentLiveSummary.summaryText) return;
+      navigator.clipboard.writeText(currentLiveSummary.summaryText).then(() => {
+        showToast("Copied");
+      }).catch(() => {
+        showToast("Copy failed");
+      });
+    });
+
+    btnExport.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (!currentLiveSummary) return;
+      const isHidden = exportDropdown.style.display === "none" || !exportDropdown.style.display;
+      exportDropdown.style.display = isHidden ? "block" : "none";
+    });
+
+    document.querySelectorAll(".export-opt-btn").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        exportDropdown.style.display = "none";
+        if (!currentLiveSummary) return;
+        const now = new Date();
+        if (btn.dataset.exportType === "md") {
+          exportMarkdown(currentLiveSummary, now);
+        } else if (btn.dataset.exportType === "pdf") {
+          exportPDF(currentLiveSummary, now);
+        }
+      });
+    });
+
+    document.addEventListener("click", (e) => {
+      if (exportDropdown && exportDropdown.style.display === "block" && !exportDropdown.contains(e.target) && !btnExport.contains(e.target)) {
+        exportDropdown.style.display = "none";
+      }
+    });
+
     function renderResults(data) {
+      currentLiveSummary = {
+        summaryText: data.summary,
+        actionItems: data.actionItems || []
+      };
+      btnCopyOutput.disabled = false;
+      btnExport.disabled = false;
+
       outputPlaceholder.style.display = "none";
       outputCard.style.display = "flex";
       outputCard.innerHTML = `
@@ -1020,7 +1261,16 @@
         const date = d.createdAt?.toDate ? d.createdAt.toDate() : new Date();
         const dateStr = date.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
           + " · " + date.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+        const titleText = d.title || dateStr;
         const preview = (d.summaryText || "").split("\n")[0].slice(0, 120);
+        
+        let defaultRename = d.title;
+        if (!defaultRename) {
+          const words = (d.summaryText || "").split(" ");
+          defaultRename = words.slice(0, 4).join(" ");
+          if (words.length > 4) defaultRename += "...";
+        }
+
         const actions = (d.actionItems || []).map(a =>
           `<div class="past-action-row">
             <span class="past-action-bullet"></span>
@@ -1028,12 +1278,29 @@
             <span class="past-action-owner">${escHtml(a.owner || "Unassigned")}</span>
           </div>`
         ).join("");
+        
         return `
-          <div class="past-card" id="pc-${i}" data-idx="${i}">
+          <div class="past-card" id="pc-${i}" data-idx="${i}" data-id="${doc.id}">
             <div class="past-card-header">
-              <span class="past-card-date">${escHtml(dateStr)}</span>
-              <span class="past-card-preview">${escHtml(preview)}</span>
-              <i data-lucide="chevron-down" class="past-card-chevron" style="width:14px;height:14px;"></i>
+              <span class="past-card-date past-card-title-span" data-id="${doc.id}" style="${d.title ? "font-family:'Inter',sans-serif;font-weight:600;color:#23231F;font-size:0.85rem;" : ""}">${escHtml(titleText)}</span>
+              <span class="past-card-preview" style="display:block;">${escHtml(preview)}</span>
+              
+              <div class="past-card-actions" data-id="${doc.id}">
+                <button class="past-action-btn edit-title-btn" data-id="${doc.id}" data-current="${escHtml(defaultRename)}" title="Rename">
+                  <i data-lucide="pencil" style="width:12px;height:12px;"></i>
+                </button>
+                <button class="past-action-btn delete-btn" data-id="${doc.id}" title="Delete">
+                  <i data-lucide="trash-2" style="width:12px;height:12px;color:#5B5FA8;"></i>
+                </button>
+              </div>
+
+              <div class="past-card-delete-confirm" data-id="${doc.id}" style="display:none;align-items:center;gap:6px;margin-left:auto;font-family:'Inter',sans-serif;font-size:0.75rem;">
+                <span style="color:#6B6A62;">Delete this summary?</span>
+                <button class="panel-btn cancel-delete-btn" style="padding:2px 6px;">Cancel</button>
+                <button class="panel-btn confirm-delete-btn" style="padding:2px 6px;color:#5B5FA8;border-color:rgba(91,95,168,0.3);">Delete</button>
+              </div>
+
+              <i data-lucide="chevron-down" class="past-card-chevron" style="width:14px;height:14px;margin-left:4px;"></i>
             </div>
             <div class="past-card-body">
               <div class="past-card-body-inner">
@@ -1058,83 +1325,6 @@
 
       lucide.createIcons();
 
-      // ── Export helpers ──────────────────────────────────────────────────
-      function slugDate(date) {
-        return date.toISOString().slice(0, 10); // YYYY-MM-DD
-      }
-
-      function buildMarkdown(d, date) {
-        const lines = [
-          `# Meeting Summary — ${slugDate(date)}`,
-          ``,
-          `## Summary`,
-          ``,
-          d.summaryText || "",
-        ];
-        if ((d.actionItems || []).length > 0) {
-          lines.push(``, `## Action Items`, ``);
-          (d.actionItems || []).forEach(a => {
-            lines.push(`- [ ] ${a.task} — ${a.owner || "Unassigned"}`);
-          });
-        }
-        return lines.join("\n");
-      }
-
-      function downloadBlob(text, filename) {
-        const blob = new Blob([text], { type: "text/markdown;charset=utf-8" });
-        const url  = URL.createObjectURL(blob);
-        const a    = document.createElement("a");
-        a.href     = url;
-        a.download = filename;
-        a.click();
-        URL.revokeObjectURL(url);
-      }
-
-      function exportPDF(d, date) {
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
-        const margin = 50;
-        const pageW  = pdf.internal.pageSize.getWidth();
-        const maxW   = pageW - margin * 2;
-        let y = margin;
-
-        // Title
-        pdf.setFont("helvetica", "bold");
-        pdf.setFontSize(16);
-        pdf.text(`Meeting Summary — ${slugDate(date)}`, margin, y);
-        y += 28;
-
-        // Summary heading
-        pdf.setFontSize(11);
-        pdf.text("Summary", margin, y);
-        y += 16;
-
-        // Summary body
-        pdf.setFont("helvetica", "normal");
-        pdf.setFontSize(10);
-        const summaryLines = pdf.splitTextToSize(d.summaryText || "", maxW);
-        pdf.text(summaryLines, margin, y);
-        y += summaryLines.length * 14 + 16;
-
-        // Action items
-        if ((d.actionItems || []).length > 0) {
-          pdf.setFont("helvetica", "bold");
-          pdf.setFontSize(11);
-          pdf.text("Action Items", margin, y);
-          y += 16;
-          pdf.setFont("helvetica", "normal");
-          pdf.setFontSize(10);
-          (d.actionItems || []).forEach(a => {
-            const line = `\u25A1  ${a.task} (${a.owner || "Unassigned"})`;
-            const wrapped = pdf.splitTextToSize(line, maxW);
-            pdf.text(wrapped, margin, y);
-            y += wrapped.length * 14 + 4;
-          });
-        }
-
-        pdf.save(`meeting-summary-${slugDate(date)}.pdf`);
-      }
-
       // Wire export buttons — use event delegation on the list
       list.querySelectorAll(".past-export-btn").forEach(btn => {
         btn.addEventListener("click", e => {
@@ -1145,17 +1335,129 @@
           const d    = doc.data();
           const date = d.createdAt?.toDate ? d.createdAt.toDate() : new Date();
           if (btn.dataset.export === "md") {
-            downloadBlob(buildMarkdown(d, date), `meeting-summary-${slugDate(date)}.md`);
+            exportMarkdown(d, date);
           } else {
             exportPDF(d, date);
           }
         });
       });
 
-      // Toggle expand/collapse
-      document.querySelectorAll(".past-card").forEach(card => {
-        card.querySelector(".past-card-header").addEventListener("click", () => {
-          card.classList.toggle("open");
+      // Toggle expand/collapse and handle actions
+      document.querySelectorAll(".past-card-header").forEach(header => {
+        header.addEventListener("click", (e) => {
+          if (e.target.closest('.past-card-actions') || 
+              e.target.closest('.past-card-delete-confirm') || 
+              e.target.closest('input') || 
+              e.target.closest('.cancel-delete-btn') || 
+              e.target.closest('.confirm-delete-btn')) {
+            return;
+          }
+          header.closest(".past-card").classList.toggle("open");
+        });
+      });
+
+      // Wire Rename logic
+      document.querySelectorAll('.edit-title-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const docId = btn.dataset.id;
+          const currentTitle = btn.dataset.current;
+          const titleSpan = list.querySelector(`.past-card-title-span[data-id="${docId}"]`);
+          
+          if (!titleSpan || titleSpan.querySelector('input')) return;
+          
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.className = 'past-title-input';
+          input.value = currentTitle;
+          
+          const saveEdit = async () => {
+            const newTitle = input.value.trim();
+            if (newTitle && newTitle !== currentTitle) {
+              titleSpan.textContent = newTitle;
+              titleSpan.style.fontFamily = "'Inter', sans-serif";
+              titleSpan.style.fontWeight = "600";
+              titleSpan.style.color = "#23231F";
+              titleSpan.style.fontSize = "0.85rem";
+              btn.dataset.current = newTitle; 
+              try {
+                await updateDoc(doc(db, "summaries", docId), { title: newTitle });
+                showToast("Renamed");
+                // Update cachedDocs so search works with new title
+                const cached = cachedDocs.find(d => d.id === docId);
+                if (cached) {
+                  const origData = cached.data.bind(cached);
+                  cached.data = () => ({ ...origData(), title: newTitle });
+                }
+              } catch (err) {
+                console.error("Rename error:", err);
+                showToast("Rename failed");
+              }
+            } else {
+              // Revert if empty or no change
+              titleSpan.textContent = titleSpan.dataset.origText || currentTitle;
+            }
+          };
+
+          input.addEventListener('keydown', (ev) => {
+            if (ev.key === 'Enter') {
+              input.blur();
+            } else if (ev.key === 'Escape') {
+              input.dataset.canceled = "true";
+              titleSpan.innerHTML = '';
+              titleSpan.textContent = titleSpan.dataset.origText || currentTitle;
+            }
+          });
+          
+          input.addEventListener('blur', () => {
+            if (input.dataset.canceled) return;
+            saveEdit();
+          });
+          
+          titleSpan.dataset.origText = titleSpan.textContent;
+          titleSpan.innerHTML = '';
+          titleSpan.appendChild(input);
+          input.focus();
+          input.select();
+        });
+      });
+
+      // Wire Delete logic
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const header = btn.closest('.past-card-header');
+          header.querySelector('.past-card-actions').style.display = 'none';
+          header.querySelector('.past-card-delete-confirm').style.display = 'flex';
+          const preview = header.querySelector('.past-card-preview');
+          if(preview) preview.style.display = 'none';
+        });
+      });
+
+      document.querySelectorAll('.cancel-delete-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const header = e.target.closest('.past-card-header');
+          header.querySelector('.past-card-actions').style.display = 'flex';
+          header.querySelector('.past-card-delete-confirm').style.display = 'none';
+          const preview = header.querySelector('.past-card-preview');
+          if(preview) preview.style.display = 'block';
+        });
+      });
+
+      document.querySelectorAll('.confirm-delete-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const card = e.target.closest('.past-card');
+          const docId = card.dataset.id;
+          try {
+            await deleteDoc(doc(db, "summaries", docId));
+            card.remove();
+            showToast("Deleted");
+            cachedDocs = cachedDocs.filter(d => d.id !== docId);
+            if (cachedDocs.length === 0) {
+              list.innerHTML = '<p class="past-empty">No summaries yet — paste your first meeting notes above to get started.</p>';
+            }
+          } catch (err) {
+            console.error("Delete error:", err);
+            showToast("Delete failed");
+          }
         });
       });
     }
