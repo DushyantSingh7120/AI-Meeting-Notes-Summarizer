@@ -246,5 +246,5 @@ Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for complete det
 ---
 
 <div align="center">
-  Crafted with ❤️ by <a href="https://github.com/DushyantSingh7120"><b>Dushyant Singh</b></a>
+  Made with ❤️ by <a href="https://github.com/DushyantSingh7120"><b>DUSHYANT SINGH BHATI</b></a>
 </div>
