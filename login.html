@@ -476,6 +476,9 @@
 
     // Helpers
     function mapAuthError(code) {
+      if (typeof code === "string" && code.includes("requests-from-referer")) {
+        return "This custom domain is blocked by your Google Cloud API key restrictions. Please add your domain to 'Website restrictions' in Google Cloud Console (APIs & Services > Credentials).";
+      }
       const map = {
         "auth/invalid-email":                           "Invalid email address.",
         "auth/user-not-found":                          "No account found with this email.",
