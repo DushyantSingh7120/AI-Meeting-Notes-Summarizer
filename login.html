@@ -185,6 +185,90 @@
     }
     .error-box[hidden] { display: none; }
 
+    .success-box {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      background: rgba(47,104,88,0.08);
+      border: 1px solid rgba(47,104,88,0.22);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 14px;
+      font-size: 0.78rem;
+      color: #2F6858;
+      line-height: 1.45;
+    }
+    .success-box[hidden] { display: none; }
+
+    .google-btn {
+      width: 100%;
+      background: #FFFFFF;
+      color: #23231F;
+      border: 1px solid #D4D1C7;
+      border-radius: 8px;
+      padding: 11px 14px;
+      font-family: "Inter", sans-serif;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+    }
+    .google-btn:hover:not(:disabled) {
+      background: #FAF9F6;
+      border-color: #B5B2A6;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .google-btn:active:not(:disabled) { transform: scale(0.99); }
+    .google-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .google-btn:focus-visible { outline: 2px solid #2F6858; outline-offset: 2px; }
+
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 18px 0;
+      color: #8C8B82;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+    }
+    .auth-divider::before,
+    .auth-divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid #E3E1DA;
+    }
+    .auth-divider span {
+      padding: 0 10px;
+    }
+
+    .forgot-link {
+      background: none;
+      border: none;
+      font-family: "Inter", sans-serif;
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: #2F6858;
+      cursor: pointer;
+      padding: 0;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .forgot-link:hover {
+      color: #1e4a3e;
+      text-decoration: underline;
+    }
+    .forgot-link:focus-visible {
+      outline: 2px solid #2F6858;
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+
     .submit-btn {
       width: 100%;
       margin-top: 6px;
@@ -258,6 +342,30 @@
       <h1>Welcome back</h1>
       <p class="card-sub">Sign in to your Scribe account to continue.</p>
 
+      <button type="button" class="google-btn" id="btn-google">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+          <path fill="#FBBC05" d="M5.28 14.27A7.19 7.19 0 0 1 4.9 12c0-.79.14-1.57.38-2.27V6.58H1.25A11.96 11.96 0 0 0 0 12c0 1.92.45 3.74 1.25 5.42l4.03-3.15z"/>
+          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+        </svg>
+        <span id="btn-google-label">Continue with Google</span>
+      </button>
+
+      <div class="auth-divider">
+        <span>or sign in with email</span>
+      </div>
+
+      <div class="success-box" id="success-msg" role="status" hidden>
+        <i data-lucide="check-circle" style="width:14px;height:14px;flex-shrink:0;margin-top:1px;"></i>
+        <span id="success-text"></span>
+      </div>
+
+      <div class="error-box" id="error-msg" role="alert" hidden>
+        <i data-lucide="alert-circle" style="width:13px;height:13px;flex-shrink:0;margin-top:1px;"></i>
+        <span id="error-text"></span>
+      </div>
+
       <form id="login-form" novalidate>
 
         <div class="field-group">
@@ -270,7 +378,10 @@
         </div>
 
         <div class="field-group">
-          <label for="password">Password</label>
+          <div style="display: flex; justify-content: space-between; align-items: baseline;">
+            <label for="password">Password</label>
+            <button type="button" class="forgot-link" id="btn-forgot-pw">Forgot password?</button>
+          </div>
           <div class="input-wrapper">
             <span class="input-icon"><i data-lucide="lock" style="width:14px;height:14px;"></i></span>
             <input class="auth-input" type="password" id="password" name="password"
@@ -280,11 +391,6 @@
               <i data-lucide="eye" id="pw-eye-icon" style="width:14px;height:14px;"></i>
             </button>
           </div>
-        </div>
-
-        <div class="error-box" id="error-msg" role="alert" hidden>
-          <i data-lucide="alert-circle" style="width:13px;height:13px;flex-shrink:0;margin-top:1px;"></i>
-          <span id="error-text"></span>
         </div>
 
         <button type="submit" class="submit-btn" id="btn-submit">
@@ -307,7 +413,14 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import {
+      getAuth,
+      signInWithEmailAndPassword,
+      GoogleAuthProvider,
+      signInWithPopup,
+      sendPasswordResetEmail,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 
     const firebaseConfig = window.FIREBASE_CONFIG || {
       apiKey:            "AIzaSyDX0t9Q6H62KtnQjnniT6MF69d8axFkhtY",
@@ -320,6 +433,8 @@
 
     const app  = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const googleProvider = new GoogleAuthProvider();
+    googleProvider.setCustomParameters({ prompt: "select_account" });
 
     lucide.createIcons();
 
@@ -328,19 +443,20 @@
       if (user) window.location.replace("index.html");
     });
 
-    // Entrance animation
+    // Entrance animation (with safe check if Motion CDN failed)
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!prefersReduced) {
-      const { animate } = Motion;
-      animate(
+    if (!prefersReduced && typeof Motion !== "undefined" && Motion.animate) {
+      Motion.animate(
         "#auth-wrapper",
         { opacity: [0, 1], transform: ["translateY(10px)", "translateY(0px)"] },
         { duration: 0.45, easing: [0.16, 1, 0.3, 1] }
       );
     } else {
       const el = document.getElementById("auth-wrapper");
-      el.style.opacity = "1";
-      el.style.transform = "none";
+      if (el) {
+        el.style.opacity = "1";
+        el.style.transform = "none";
+      }
     }
 
     // Password visibility toggle
@@ -356,27 +472,43 @@
     // Helpers
     function mapAuthError(code) {
       const map = {
-        "auth/invalid-email":          "Invalid email address.",
-        "auth/user-not-found":         "No account found with this email.",
-        "auth/wrong-password":         "Incorrect password.",
-        "auth/invalid-credential":     "Invalid email or password.",
-        "auth/too-many-requests":      "Too many attempts. Try again later.",
-        "auth/network-request-failed": "Network error. Check your connection.",
-        "auth/user-disabled":          "This account has been disabled.",
+        "auth/invalid-email":                           "Invalid email address.",
+        "auth/user-not-found":                          "No account found with this email.",
+        "auth/wrong-password":                          "Incorrect password.",
+        "auth/invalid-credential":                      "Invalid email or password.",
+        "auth/too-many-requests":                       "Too many attempts. Try again later.",
+        "auth/network-request-failed":                  "Network error. Check your connection.",
+        "auth/user-disabled":                           "This account has been disabled.",
+        "auth/popup-closed-by-user":                    "Sign-in popup was closed before finishing.",
+        "auth/cancelled-popup-request":                 "Only one sign-in popup can be active at a time.",
+        "auth/account-exists-with-different-credential": "An account already exists with this email using a different sign-in method.",
+        "auth/operation-not-allowed":                   "Google sign-in is not enabled in Firebase Console. Please enable Google in Firebase Console > Authentication > Sign-in method.",
+        "auth/unauthorized-domain":                     "This domain is not authorized in Firebase. Please add this domain under Authentication > Settings > Authorized domains in Firebase Console.",
       };
-      return map[code] || "Something went wrong. Please try again.";
+      return map[code] || `Authentication error (${code || "unknown"}). Please try again.`;
     }
 
     function showError(msg) {
+      clearSuccess();
       document.getElementById("error-text").textContent = msg;
       document.getElementById("error-msg").hidden = false;
       document.getElementById("email").classList.add("has-error");
       document.getElementById("password").classList.add("has-error");
+      lucide.createIcons();
     }
     function clearError() {
       document.getElementById("error-msg").hidden = true;
       document.getElementById("email").classList.remove("has-error");
       document.getElementById("password").classList.remove("has-error");
+    }
+    function showSuccess(msg) {
+      clearError();
+      document.getElementById("success-text").textContent = msg;
+      document.getElementById("success-msg").hidden = false;
+      lucide.createIcons();
+    }
+    function clearSuccess() {
+      document.getElementById("success-msg").hidden = true;
     }
     function setLoading(on) {
       const btn = document.getElementById("btn-submit");
@@ -385,10 +517,49 @@
       document.getElementById("btn-label").textContent = on ? "Signing in\u2026" : "Sign in";
     }
 
-    // Submit
+    // Google Sign In
+    document.getElementById("btn-google").addEventListener("click", async () => {
+      clearError();
+      clearSuccess();
+      const btn = document.getElementById("btn-google");
+      const label = document.getElementById("btn-google-label");
+      btn.disabled = true;
+      label.textContent = "Connecting to Google\u2026";
+      try {
+        await signInWithPopup(auth, googleProvider);
+        // onAuthStateChanged handles redirect
+      } catch (err) {
+        if (err.code !== "auth/popup-closed-by-user") {
+          showError(mapAuthError(err.code));
+        }
+        btn.disabled = false;
+        label.textContent = "Continue with Google";
+      }
+    });
+
+    // Forgot Password
+    document.getElementById("btn-forgot-pw").addEventListener("click", async () => {
+      clearError();
+      clearSuccess();
+      const email = document.getElementById("email").value.trim();
+      if (!email) {
+        showError("Please enter your email above, then click 'Forgot password?'.");
+        document.getElementById("email").focus();
+        return;
+      }
+      try {
+        await sendPasswordResetEmail(auth, email);
+        showSuccess(`Password reset email sent to ${email}! Check your inbox and spam folder.`);
+      } catch (err) {
+        showError(mapAuthError(err.code));
+      }
+    });
+
+    // Email/Password Submit
     document.getElementById("login-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       clearError();
+      clearSuccess();
       const email    = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
       if (!email || !password) { showError("Please fill in all fields."); return; }

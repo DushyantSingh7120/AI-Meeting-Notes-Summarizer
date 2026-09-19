@@ -1,0 +1,21 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Rules for AI Meeting Notes Summarizer
+    match /summaries/{summaryId} {
+      // Must be authenticated to read or modify
+      // Users can only read, edit, or delete summaries that belong to them
+      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+      
+      // Users can only create documents where they set themselves as the owner
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+    
+    // Deny all other collections by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

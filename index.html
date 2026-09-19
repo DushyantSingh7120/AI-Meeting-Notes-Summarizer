@@ -902,19 +902,18 @@
 
       loadPastSummaries(user.uid);
 
-      if (!prefersReduced) {
-        const { animate } = Motion;
-        animate(
+      if (!prefersReduced && typeof Motion !== "undefined" && Motion.animate) {
+        Motion.animate(
           "#nav-bar",
           { opacity: [0, 1], transform: ["translateY(-8px)", "translateY(0px)"] },
           { duration: 0.4, easing: [0.16, 1, 0.3, 1] }
         );
-        animate(
+        Motion.animate(
           "#col-input",
           { opacity: [0, 1], transform: ["translateY(10px)", "translateY(0px)"] },
           { duration: 0.5, easing: [0.16, 1, 0.3, 1], delay: 0.15 }
         );
-        animate(
+        Motion.animate(
           "#col-output",
           { opacity: [0, 1], transform: ["translateY(10px)", "translateY(0px)"] },
           { duration: 0.5, easing: [0.16, 1, 0.3, 1], delay: 0.25 }
@@ -1217,15 +1216,19 @@
       // Animate action items in
       const rows = outputCard.querySelectorAll(".action-item-row");
       if (rows.length > 0) {
-        const { animate, stagger } = Motion;
-        if (!prefersReduced) {
-          animate(
-            rows,
-            { opacity: [0, 1], transform: ["translateX(10px)", "translateX(0px)"] },
-            { duration: 0.35, easing: [0.16, 1, 0.3, 1], delay: stagger(0.1) }
-          );
+        if (typeof Motion !== "undefined" && Motion.animate) {
+          const { animate, stagger } = Motion;
+          if (!prefersReduced && typeof stagger === "function") {
+            animate(
+              rows,
+              { opacity: [0, 1], transform: ["translateX(10px)", "translateX(0px)"] },
+              { duration: 0.35, easing: [0.16, 1, 0.3, 1], delay: stagger(0.1) }
+            );
+          } else {
+            animate(rows, { opacity: [0, 1] }, { duration: 0.3 });
+          }
         } else {
-          animate(rows, { opacity: [0, 1] }, { duration: 0.3 });
+          rows.forEach((r) => { r.style.opacity = "1"; r.style.transform = "none"; });
         }
       }
     }
@@ -1515,15 +1518,22 @@
     function showToast(msg = "Saved") {
       const toast = document.getElementById("toast");
       document.getElementById("toast-msg").textContent = msg;
-      const { animate } = Motion;
       if (toastTimer) clearTimeout(toastTimer);
-      // Fade in
-      animate(toast, { opacity: [0, 1] }, { duration: 0.2, easing: "ease-out" });
-      // Fade out after 2 s
-      toastTimer = setTimeout(() => {
-        animate(toast, { opacity: [1, 0] }, { duration: 0.3, easing: "ease-in" });
-        toastTimer = null;
-      }, 2000);
+      if (typeof Motion !== "undefined" && Motion.animate) {
+        // Fade in
+        Motion.animate(toast, { opacity: [0, 1] }, { duration: 0.2, easing: "ease-out" });
+        // Fade out after 2 s
+        toastTimer = setTimeout(() => {
+          Motion.animate(toast, { opacity: [1, 0] }, { duration: 0.3, easing: "ease-in" });
+          toastTimer = null;
+        }, 2000);
+      } else {
+        toast.style.opacity = "1";
+        toastTimer = setTimeout(() => {
+          toast.style.opacity = "0";
+          toastTimer = null;
+        }, 2000);
+      }
     }
 
     btnPanel.addEventListener("click", async () => {
